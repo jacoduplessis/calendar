@@ -2,6 +2,10 @@
 
 The 7Kb JavaScript calendar.
 
+## Demo
+
+[https://jacoduplessis.github.io/calendar/](https://jacoduplessis.github.io/calendar/)
+
 ## Usage
 
 ```html
