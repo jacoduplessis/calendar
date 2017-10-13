@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Calendar</title>
+</head>
+<body>
+  <div id="calendar" style="max-width: 800px;margin: 0 auto;"></div>
+
+  <script src="calendar.js"></script>
+  <script>
+    var cal = new Calendar({
+      target: document.querySelector("#calendar"),
+      data: {
+        escape: false,
+        view: 'list',
+        defaultColor: 'black',
+        entries: [{
+          start: '2017-10-10T16:00:00',
+          end: '2017-10-22T12:00:00',
+          title: 'First Event',
+          color: 'darkred',
+          content: `
+                <img src="https://farm4.staticflickr.com/3603/3563749537_eff5147fe3_b.jpg">
+                <p>Hallo World</p>
+                <ol>
+                  <li>A</li>
+                  <li>B</li>
+                  <li>C</li>
+                </ol>
+                `
+        },
+        {
+          start: '2017-10-10',
+          end: '2017-10-20',
+          title: 'Second Event',
+          color: 'darkgreen',
+          content: ``
+        },
+        {
+          start: '2017-10-12T08:00:00',
+          end: '2017-10-12T10:00:00',
+          title: 'Third Event With Some Very Long Text Let Us See What We Need It To Be Even Longer Happens...',
+          content: `Content Here.`
+        }
+
+        ]
+      }
+    })
+  </script>
+  <style>
+    img {
+      max-width: 100%
+    }
+  </style>
+</body>
+</html>

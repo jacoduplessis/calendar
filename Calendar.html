@@ -1,0 +1,477 @@
+<div>
+  <div id="header">
+    <div>
+      <button on:click="set({month: month === 0 ? 11 : month-1, year: month === 0 ? year-1 : year})">{{ previousText }}</button>
+      <button on:click="set({month: (month+1)%12, year: month === 11 ? year + 1: year})">{{ nextText }}</button>
+    </div>
+    <span class="title">{{ year }} {{ monthName }}</span>
+    <div>
+      <button class="{{ view === 'calendar' ? 'is-active': ''}}" on:click="set({view: 'calendar'})">{{ calendarText }}</button>
+      <button class="{{ view === 'list' ? 'is-active': ''}}" on:click="set({view: 'list'})">{{ listText }}</button>
+    </div>
+  </div>
+  {{#if view==='calendar' }}
+    <table>
+      <thead>
+        <tr>
+          {{#each dayNames as dayName}}
+            <th>{{ dayName }}</th>
+          {{/each}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#each monthData.weeks as weekdays}}
+          <tr>
+            {{#each weekdays as weekday}}
+              <td class="{{ weekday.number === '' ? 'filler' : ''}}">
+                <span class="day-number">{{ weekday.number }}</span>
+                {{#each weekday.entries as entry}}
+                  <span class="event {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30) }}</span>
+                {{/each}}
+              </td>
+            {{/each}}
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+  {{else}}
+
+    {{#if monthData.numEntries === 0 }}
+      <div class="no-entries">{{emptyText}}</div>
+    {{/if}}
+    {{#each monthData.weeks as weekdays}}
+      {{#each weekdays as weekday}}
+        {{#if weekday.entries.length> 0}}
+          <div class="row-header">
+            {{ weekday.day.toDateString() }}
+          </div>
+          <div class="row-content">
+            {{#each weekday.entries as entry}}
+              <p><span class="dot" style="background-color: {{ entry.color || defaultColor }}"></span>
+                {{#if entry.hasStartTime && entry.days.length === 1}}
+                <span class="row-entry-time">{{ entry.startDate.toTimeString().slice(0,5) }}</span>
+                {{/if}}
+                {{#if entry.hasEndTime && entry.days.length === 1}}
+                <span class="row-entry-time">- {{ entry.endDate.toTimeString().slice(0,5) }}</span>
+                {{/if}}
+
+                <span class="row-entry-title" on:click="loadEntry(entry)">{{ charLimit(entry.title, 70) }}</span></p>
+            {{/each}}
+          </div>
+        {{/if}}
+      {{/each}}
+    {{/each}}
+  {{/if}}
+</div>
+<div class="modal {{ showModal ? 'is-active' : ''}}">
+  <div class="modal-background" on:click="set({showModal: false})"></div>
+  <div class="modal-content">
+    <div class="modal-container">
+      {{#if activeEntry}}
+        <span class="title modal-title">{{ activeEntry.title }}</span>
+        <div class="event-meta">
+          <strong>Start:</strong> {{activeEntry.startDate.toDateString()}}
+          {{#if activeEntry.hasStartTime}}
+            <span class="time">{{ activeEntry.startDate.toTimeString().slice(0,5) }}</span>
+          {{/if}}
+          {{#if activeEntry.end }}
+            <br>
+            <strong>End:</strong> {{activeEntry.endDate.toDateString()}}
+            {{#if activeEntry.hasEndTime}}
+              <span class="time">{{ activeEntry.endDate.toTimeString().slice(0,5) }}</span>
+            {{/if}}
+          {{/if}}
+        </div>
+        {{#if escape }}{{ activeEntry.content }}{{else}}{{{ activeEntry.content }}}{{/if}}
+      {{/if}}
+    </div>
+  </div>
+  <button class="modal-close is-large" aria-label="close" on:click="set({showModal: false})"></button>
+</div>
+
+
+<style>
+  * {
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  #header {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .title {
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+
+  .modal-title {
+    display: block;
+    margin-bottom: 2rem;
+  }
+
+  table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+
+  }
+
+  tbody tr {
+    height: 150px;
+  }
+
+  th {
+    background: whitesmoke;
+    min-width: 14.25%;
+  }
+
+  td {
+    text-align: right;
+    vertical-align: top;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+  }
+
+  button {
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 0.3rem 0.6rem;
+    background: white;
+    color: black;
+  }
+
+  button:hover {
+    cursor: pointer;
+    background: #ddd;
+  }
+
+  button.is-active {
+    background-color: #666;
+    color: white;
+  }
+
+  .event {
+    display: block;
+    background-color: darkblue;
+    padding: 0.1rem 0.3rem;
+    width: 100%;
+    color: white;
+    border-radius: 3px;
+    text-align: left;
+    margin-bottom: 3px;
+    cursor: default;
+  }
+
+  .event.has-content:hover {
+    cursor: pointer;
+  }
+
+  .filler {
+    border: none;
+  }
+
+  .time {
+    text-decoration: underline;
+  }
+
+  .row-header {
+    background-color: whitesmoke;
+    padding: 0.8rem 1rem;
+    font-weight: 600;
+  }
+
+  .row-content {
+    padding: 0.8rem 1rem;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+  }
+
+  .row-entry-title:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .row-entry-time {
+    font-weight: 600;
+  }
+
+  .no-entries {
+    text-align: center;
+    padding: 10rem 0;
+    width: 100%;
+    background-color: whitesmoke;
+  }
+
+  .modal {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: none;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    overflow: hidden;
+    position: fixed;
+    z-index: 20;
+  }
+
+  .modal.is-active {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+  }
+
+  .modal-background {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: rgba(10, 10, 10, 0.86);
+  }
+
+  .modal-content,
+  .modal-card {
+    margin: 0 20px;
+    max-height: calc(100vh - 160px);
+    overflow: auto;
+    position: relative;
+    width: 100%;
+  }
+
+  @media screen and (min-width: 769px),
+  print {
+    .modal-content,
+    .modal-card {
+      margin: 0 auto;
+      max-height: calc(100vh - 40px);
+      width: 640px;
+    }
+  }
+
+  .modal-close {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background-color: rgba(10, 10, 10, 0.2);
+    border: none;
+    border-radius: 290486px;
+    cursor: pointer;
+    display: inline-block;
+    -webkit-box-flex: 0;
+    -ms-flex-positive: 0;
+    flex-grow: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    font-size: 1rem;
+    height: 32px;
+    max-height: 32px;
+    max-width: 32px;
+    min-height: 32px;
+    min-width: 32px;
+    width: 32px;
+    outline: none;
+    position: relative;
+    vertical-align: top;
+    background: none;
+    height: 40px;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    width: 40px;
+  }
+
+  .modal-close:before,
+  .modal-close:after {
+    background-color: white;
+    content: "";
+    display: block;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateX(-50%) translateY(-50%) rotate(45deg);
+    transform: translateX(-50%) translateY(-50%) rotate(45deg);
+    -webkit-transform-origin: center center;
+    transform-origin: center center;
+  }
+
+  .modal-close:before {
+    height: 2px;
+    width: 50%;
+  }
+
+  .modal-close:after {
+    height: 50%;
+    width: 2px;
+  }
+
+  .modal-close:hover,
+  .modal-close:focus {
+    background-color: rgba(10, 10, 10, 0.3);
+  }
+
+  .modal-close:active {
+    background-color: rgba(10, 10, 10, 0.4);
+  }
+
+  .modal-container {
+    padding: 2rem;
+    background-color: white;
+    border-radius: 3px;
+  }
+
+  .event-meta {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+  }
+
+</style>
+
+<script>
+  export default {
+    data: function () {
+      var now = new Date(2017, 9, 1);
+      return {
+        monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        month: now.getMonth(),
+        day: now.getDate(),
+        year: now.getFullYear(),
+        escape: true,
+        previousText: "Prev",
+        nextText: "Next",
+        calendarText: "Calendar",
+        listText: "List",
+        emptyText: "No Events To Display",
+        view: 'calendar',
+        defaultColor: 'darkblue',
+        showModal: false,
+        activeEntry: null,
+        entries: [],
+        parsedEntries: [],
+      }
+    },
+    methods: {
+      loadEntry: function (entry) {
+        if (!entry.content) return
+        this.set({
+          showModal: true,
+          activeEntry: entry,
+        })
+      }
+    },
+    helpers: {
+      charLimit: function (str, n) {
+        if (str.length <= n) return str
+        return str.substr(0, n) + '...'
+      }
+    },
+    oncreate: function () {
+      this.observe('showModal', function (showModal) {
+        if (!showModal) {
+          this.set({
+            activeEntry: null,
+          })
+        }
+      })
+      this.observe('entries', function (entries) {
+        var parsedEntries = entries.map(function (e) {
+          e.hasStartTime = e.start.indexOf('T') > -1
+          e.startDate = new Date(Date.parse(e.start))
+          e.days = [e.startDate.toDateString()]
+          if (e.end) {
+            e.hasEndTime = e.end.indexOf('T') > -1
+            e.endDate = new Date(Date.parse(e.end))
+            var deltaStart = new Date(+e.startDate)
+            var deltaEnd = new Date(+e.endDate);
+            ;[deltaStart, deltaEnd].forEach(function (d) {
+              d.setHours(0)
+              d.setMinutes(0)
+              d.setSeconds(0)
+              d.setMilliseconds(0)
+            })
+            var deltaDays = Math.round((deltaEnd - deltaStart) / 1000 / 60 / 60 / 24);
+            for (var i = 0; i < deltaDays; i++) {
+              var date = new Date(+e.startDate)
+              date.setDate(date.getDate() + i + 1)
+              e.days.push(date.toDateString())
+            }
+          }
+          return e
+        })
+        this.set({ parsedEntries: parsedEntries })
+      })
+    },
+    computed: {
+      monthName: function (month, monthNames) {
+        return monthNames[month]
+      },
+      numEntriesForMonth: function(year, month, parsedEntries) {
+        
+      },
+      monthData: function (year, month, parsedEntries) {
+        var weeks = []
+        var start = (new Date(year, month, 1)).getDay()
+        var days = []
+        var feb = (year % 100 != 0) && (year % 4 == 0) || (year % 400 == 0) ? 29 : 28
+        var dayPerMonth = [31, feb, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        var numDays = dayPerMonth[month]
+        var numEntries = 0
+        for (var i = 0; i < start; i++) {
+          days.push({ number: '', entries: [] })
+        }
+        for (var i = 0; i < numDays; i++) {
+          var day = new Date(year, month, i + 1)
+          var entries = parsedEntries.filter(function (e) {
+              return e.days.indexOf(day.toDateString()) > -1
+          })
+          numEntries += entries.length
+          days.push({
+            number: i + 1,
+            day: day,
+            entries: entries,
+          })
+        }
+        for (var i = 0; i < days.length; i += 7) {
+          weeks.push(days.slice(i, i + 7))
+        }
+        var finalWeek = weeks[weeks.length - 1]
+        var toAdd = 7 - finalWeek.length
+        for (var i = 0; i < toAdd; i++) {
+          finalWeek.push({ number: '', entries: [] })
+        }
+        return {
+          weeks: weeks,
+          numEntries: numEntries,
+        }
+      }
+
+    }
+  }
+</script>

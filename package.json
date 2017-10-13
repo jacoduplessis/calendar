@@ -1,0 +1,16 @@
+{
+  "name": "calendar",
+  "version": "1.0.0",
+  "main": "calendar.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "while inotifywait -e close_write Calendar.html; do yarn run build; done",
+    "measure": "gzip -c calendar.js > compressed.gz && du --bytes -h compressed.gz",
+    "clean": "find . -name \"*.gz\" -maxdepth 1 -delete"
+  },
+  "devDependencies": {
+    "svelte": "^1.40.2",
+    "uglify-js": "^3.1.3"
+  }
+}
