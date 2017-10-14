@@ -165,19 +165,22 @@ CSS color to associate with this entry.
 
 This updates the calendar's state with the new values provided and causes the DOM to update.
 
+Usage:
+
 ```js
 calendar.set({events: [...]}) // update events
 
-calendar.set({year: 2018, month: 1}) // jump to Feb 2018
+calendar.set({year: 2018, month: 1}) // jump to Feb 2018 (months are zero-indexed)
 ```
-
 
 ### `.get(key)`
 
 Get calendar state.
 
+Usage:
+
 ```js
-const events = calendar.get('events')
+var entries = calendar.get('entries')
 ```
 
 ### `.observe(key, callback[, options])`
@@ -185,6 +188,8 @@ const events = calendar.get('events')
 Use this to check when the calendar display is changed, 
 possible fetching new event data and updating the calendar with
 `.set`.
+
+Usage:
 
 ```js
 calendar.observe('month', function(newMonth, oldMonth) {
@@ -196,6 +201,8 @@ calendar.observe('month', function(newMonth, oldMonth) {
 ### `.destroy()`
 
 Removes the component from the DOM and removes any observers and event listeners that were created. 
+
+Usage:
 
 ```js
 calendar.destroy()

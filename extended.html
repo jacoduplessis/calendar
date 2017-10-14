@@ -23,6 +23,7 @@
           end: '2017-10-22T12:00:00',
           title: 'First Event',
           color: 'darkred',
+          id: 1,
           content: `
                 <p>Hallo World</p>
                 <ol>
@@ -36,6 +37,7 @@
           start: '2017-10-10',
           end: '2017-10-20',
           title: 'Second Event',
+          id: 2,
           color: 'darkgreen',
           content: ``
         },
@@ -43,7 +45,8 @@
           start: '2017-10-12T08:00:00',
           end: '2017-10-12T10:00:00',
           title: 'Third Event With Some Very Long Text Let Us See What We Need It To Be Even Longer Happens...',
-          content: `Content Here.`
+          content: `Content Here.`,
+          id: 3,
         }
 
         ]
@@ -51,11 +54,22 @@
     })
 
     cal.on('entryClicked', function (event) {
-      console.log(event.entry)
+      setTimeout(function() {
+        var wrap = document.createElement('div')
+        wrap.style.marginTop = '1rem'
+        var btn = document.createElement('button')
+        btn.classList.add('button')
+        btn.onclick = function() {
+          removeEntry(event.entry.id)
+        }
+        btn.textContent = 'Remove Entry'
+        wrap.appendChild(btn)
+        cal.refs.modalContent.appendChild(wrap)
+      }, 10)
     })
 
     cal.on('newClicked', function (event) {
-      console.log(event.day)
+
       cal.refs.modalContent.innerHTML = '<h1>Add New Entry</h1>' +
         '<h3>' + event.day.date.toDateString() + '</h3>' +
         '<input id="entry-title" placeholder="Enter Title"><br>' +
@@ -124,8 +138,23 @@
         start: start,
         end: end,
         content: content,
+        id: +(new Date())
       })
       cal.set({ entries: entries, showModal: false })
+    }
+
+    function removeEntry(entryID) {
+      console.log("Removing", entryID)
+      var entries = cal.get('entries')
+      var index = entries.findIndex(function(e) {
+        return e.id == entryID
+      })
+      if (index > -1) {
+        entries.splice(index, 1)
+        cal.set({showModal:false, entries:entries})
+      } else {
+        console.log("Not found")
+      }
     }
   </script>
   <link rel="stylesheet" href="https://unpkg.com/flatpickr@4.0.3/dist/flatpickr.min.css">

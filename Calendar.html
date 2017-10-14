@@ -29,7 +29,7 @@
                   <span class="event {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30, untitledText) }}</span>
                 {{/each}}
                 {{#if showNew}}
-                <div class="add-new" on:click="fire('newClicked', {day: weekday})">{{newText}}</div>
+                  <div class="add-new" on:click="fire('newClicked', {day: weekday})">{{newText}}</div>
                 {{/if}}
               </td>
             {{/each}}
@@ -37,7 +37,6 @@
         {{/each}}
       </tbody>
     </table>
-
   {{else}}
 
     {{#if monthData.numEntries===0 }}
@@ -135,6 +134,7 @@
   th {
     background: whitesmoke;
     min-width: 14.25%;
+    max-width: 25%;
   }
 
   td {
@@ -174,10 +174,6 @@
     border-radius: 3px;
     text-align: left;
     margin-bottom: 3px;
-    cursor: default;
-  }
-
-  .event.has-content:hover {
     cursor: pointer;
   }
 
@@ -417,9 +413,7 @@
     oncreate: function () {
       this.observe('showModal', function (showModal) {
         if (!showModal) {
-          this.set({
-            activeEntry: null,
-          })
+          this.set({ activeEntry: null })
           this.refs.modalContent.innerHTML = ''
         }
       })
