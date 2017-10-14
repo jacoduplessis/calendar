@@ -26,8 +26,11 @@
               <td class="{{ weekday.number === '' ? 'filler' : ''}}">
                 <span class="day-number">{{ weekday.number }}</span>
                 {{#each weekday.entries as entry}}
-                  <span class="event {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30) }}</span>
+                  <span class="event {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30, untitledText) }}</span>
                 {{/each}}
+                {{#if showNew}}
+                <div class="add-new" on:click="fire('newClicked', {day: weekday})">{{newText}}</div>
+                {{/if}}
               </td>
             {{/each}}
           </tr>
@@ -37,26 +40,28 @@
 
   {{else}}
 
-    {{#if monthData.numEntries === 0 }}
+    {{#if monthData.numEntries===0 }}
       <div class="no-entries">{{emptyText}}</div>
     {{/if}}
     {{#each monthData.weeks as weekdays}}
       {{#each weekdays as weekday}}
         {{#if weekday.entries.length> 0}}
           <div class="row-header">
-            {{ weekday.day.toDateString() }}
+            {{ weekday.date.toDateString() }}
           </div>
           <div class="row-content">
             {{#each weekday.entries as entry}}
-              <p><span class="dot" style="background-color: {{ entry.color || defaultColor }}"></span>
-                {{#if entry.hasStartTime && entry.days.length === 1}}
-                <span class="row-entry-time">{{ entry.startDate.toTimeString().slice(0,5) }}</span>
+              <p>
+                <span class="dot" style="background-color: {{ entry.color || defaultColor }}"></span>
+                {{#if entry.hasStartTime && entry.days.length===1 }}
+                  <span class="row-entry-time">{{ entry.startDate.toTimeString().slice(0,5) }}</span>
                 {{/if}}
-                {{#if entry.hasEndTime && entry.days.length === 1}}
-                <span class="row-entry-time">- {{ entry.endDate.toTimeString().slice(0,5) }}</span>
+                {{#if entry.hasEndTime && entry.days.length===1 }}
+                  <span class="row-entry-time">- {{ entry.endDate.toTimeString().slice(0,5) }}</span>
                 {{/if}}
 
-                <span class="row-entry-title" on:click="loadEntry(entry)">{{ charLimit(entry.title, 70) }}</span></p>
+                <span class="row-entry-title" on:click="loadEntry(entry)">{{ charLimit(entry.title, 70, untitledText) }}</span>
+              </p>
             {{/each}}
           </div>
         {{/if}}
@@ -67,9 +72,9 @@
 <div class="modal {{ showModal ? 'is-active' : ''}}">
   <div class="modal-background" on:click="set({showModal: false})"></div>
   <div class="modal-content">
-    <div class="modal-container">
+    <div class="modal-container" ref:modalContent>
       {{#if activeEntry}}
-        <span class="title modal-title">{{ activeEntry.title }}</span>
+        <span class="title modal-title">{{ activeEntry.title || untitledText }}</span>
         <div class="event-meta">
           <strong>Start:</strong> {{activeEntry.startDate.toDateString()}}
           {{#if activeEntry.hasStartTime}}
@@ -89,7 +94,6 @@
   </div>
   <button class="modal-close is-large" aria-label="close" on:click="set({showModal: false})"></button>
 </div>
-
 
 <style>
   * {
@@ -183,6 +187,20 @@
 
   .time {
     text-decoration: underline;
+  }
+
+  .add-new {
+    background-color: whitesmoke;
+    width: 100%;
+    padding: 1rem 0;
+    text-align: center;
+    border: 2px dashed #ccc;
+    cursor: pointer;
+    display: none;
+  }
+
+  td:hover .add-new {
+    display: block;
   }
 
   .row-header {
@@ -368,18 +386,21 @@
         nextText: "Next",
         calendarText: "Calendar",
         listText: "List",
+        untitledText: "Untitled",
         emptyText: "No Events To Display",
+        newText: "Add New",
         view: 'calendar',
         defaultColor: 'darkblue',
         showModal: false,
         activeEntry: null,
+        showNew: false,
         entries: [],
         parsedEntries: [],
       }
     },
     methods: {
       loadEntry: function (entry) {
-        if (!entry.content) return
+        this.fire('entryClicked', { entry: entry })
         this.set({
           showModal: true,
           activeEntry: entry,
@@ -387,7 +408,8 @@
       }
     },
     helpers: {
-      charLimit: function (str, n) {
+      charLimit: function (str, n, empty) {
+        if (!str) return empty || ' '
         if (str.length <= n) return str
         return str.substr(0, n) + '...'
       }
@@ -398,6 +420,7 @@
           this.set({
             activeEntry: null,
           })
+          this.refs.modalContent.innerHTML = ''
         }
       })
       this.observe('entries', function (entries) {
@@ -432,9 +455,6 @@
       monthName: function (month, monthNames) {
         return monthNames[month]
       },
-      numEntriesForMonth: function(year, month, parsedEntries) {
-        
-      },
       monthData: function (year, month, parsedEntries) {
         var weeks = []
         var start = (new Date(year, month, 1)).getDay()
@@ -447,14 +467,14 @@
           days.push({ number: '', entries: [] })
         }
         for (var i = 0; i < numDays; i++) {
-          var day = new Date(year, month, i + 1)
+          var date = new Date(year, month, i + 1)
           var entries = parsedEntries.filter(function (e) {
-              return e.days.indexOf(day.toDateString()) > -1
+            return e.days.indexOf(date.toDateString()) > -1
           })
           numEntries += entries.length
           days.push({
             number: i + 1,
-            day: day,
+            date: date,
             entries: entries,
           })
         }

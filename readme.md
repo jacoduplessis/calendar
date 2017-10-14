@@ -2,9 +2,13 @@
 
 The 7Kb JavaScript calendar.
 
-## Demo
+## Demos
 
-[https://jacoduplessis.github.io/calendar/](https://jacoduplessis.github.io/calendar/)
+[Basic Usage](https://jacoduplessis.github.io/calendar/)
+
+[Dynamically Adding New Entries](https://jacoduplessis.github.io/calendar/extended.html)
+
+Also displays integration with [flatpickr](https://chmln.github.io/flatpickr).
 
 ## Usage
 
@@ -59,9 +63,21 @@ Default: current year
 
 `escape` [Boolean]
 
-Whether to escape the `content` field of the event.
+Whether to escape the `content` field of the event. Set to `false` if you need to display HTML in the modal.
 
 Default: `true`
+
+`showNew` [Boolean]
+
+Whether to show the New Event click area on the calendar.
+
+Default: `false`
+
+`newText` [String]
+
+Text to display in the New Entry area.
+
+Default: `"Add New"`
 
 `previousText` [String]
 
@@ -92,6 +108,12 @@ Default: `"List"`
 Text to display when list view is empty.
 
 Default: `"No Events To Display"`
+
+`untitledText` [String]
+
+Text to display when entry title is empty.
+
+Default: `"Untitled"`
 
 `view` [String]
 
@@ -177,6 +199,57 @@ Removes the component from the DOM and removes any observers and event listeners
 
 ```js
 calendar.destroy()
+```
+
+`.on(event, callback)`
+
+Respond to events.
+
+## Trigger the modal
+
+```js
+calendar.set({showModal: true})
+```
+
+
+## Access to DOM Nodes
+
+Certain nodes van be reference using the `refs` property of the calendar.
+
+`modalContent`
+
+Usage:
+
+```js
+
+calendar.refs.modalContent.innerHTML = '<h1>Custom Modal Content</h1>`
+calendar.set({showModal: true})
+```
+
+## Events
+
+`entryClicked`
+
+Called when an entry is clicked/tapped in calendar view.
+
+Usage:
+
+```js
+calendar.on('entryClicked', function(event) {
+  console.log(event.entry)
+})
+```
+
+`newClicked`
+
+Called when the New Entry area is clicked/tapped in calendar view.
+
+Usage:
+
+```js
+calendar.on('dayClicked', function(event) {
+  console.log(event.day)
+})
 ```
 
 ## Translation
