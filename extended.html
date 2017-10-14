@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Calendar</title>
+</head>
+
+<body>
+  <div id="calendar" style="max-width: 800px;margin: 0 auto;"></div>
+  <script src="calendar.js"></script>
+  <script>
+    var cal = new Calendar({
+      target: document.querySelector("#calendar"),
+      data: {
+        escape: false,
+        view: 'calendar',
+        defaultColor: 'darkblue',
+        showNew: true,
+        entries: [{
+          start: '2017-10-10T16:00:00',
+          end: '2017-10-22T12:00:00',
+          title: 'First Event',
+          color: 'darkred',
+          content: `
+                <p>Hallo World</p>
+                <ol>
+                  <li>A</li>
+                  <li>B</li>
+                  <li>C</li>
+                </ol>
+                `
+        },
+        {
+          start: '2017-10-10',
+          end: '2017-10-20',
+          title: 'Second Event',
+          color: 'darkgreen',
+          content: ``
+        },
+        {
+          start: '2017-10-12T08:00:00',
+          end: '2017-10-12T10:00:00',
+          title: 'Third Event With Some Very Long Text Let Us See What We Need It To Be Even Longer Happens...',
+          content: `Content Here.`
+        }
+
+        ]
+      }
+    })
+
+    cal.on('entryClicked', function (event) {
+      console.log(event.entry)
+    })
+
+    cal.on('newClicked', function (event) {
+      console.log(event.day)
+      cal.refs.modalContent.innerHTML = '<h1>Add New Entry</h1>' +
+        '<h3>' + event.day.date.toDateString() + '</h3>' +
+        '<input id="entry-title" placeholder="Enter Title"><br>' +
+        '<input id="from-date" placeholder="From Date" class="date-picker">' +
+        '<input id="from-time" placeholder="From Time (optional)" class="time-picker"><br>' +
+        '<input id="to-date" placeholder="To Date" class="date-picker">' +
+        '<input id="to-time" placeholder="To Time (optional)" class="time-picker"><br>' +
+        '<textarea id="entry-content" placeholder="Enter description" style="width: 100%"></textarea>' +
+        '<button onclick="submitEntry()">Submit</button>'
+
+      cal.set({ 'showModal': true })
+      setTimeout(function () {
+        flatpickr(".date-picker", {
+          defaultDate: event.day.date
+        })
+        flatpickr(".time-picker", {
+          enableTime: true,
+          noCalendar: true,
+          enableSeconds: false, // disabled by default
+          time_24hr: true, // AM/PM time picker is used by default
+          // default format
+          dateFormat: "H:i:S",
+          // initial values for time. don't use these to preload a date
+          defaultHour: 12,
+          defaultMinute: 0
+        })
+      }, 100)
+    })
+
+    function q(s) {
+      return document.querySelector(s)
+    }
+
+    function v(s) {
+      return q(s).value.trim()
+    }
+
+    function submitEntry() {
+      var title = v('#entry-title')
+      var fromDate = v('#from-date')
+      var fromTime = v('#from-time')
+      var toDate = v('#to-date')
+      var toTime = v('#to-time')
+      var content = v('#entry-content')
+      var entries = cal.get('entries')
+
+      var start = fromDate 
+      if (!!fromTime) {
+        start += ('T' + fromTime)
+      }
+
+      var end = toDate || null
+      if (end && !!toTime) {
+        end += ('T' + toTime)
+      }
+
+      entries.push({
+        title: title,
+        start: start,
+        end: end,
+        content: content,
+      })
+      cal.set({ entries: entries, showModal: false })
+    }
+  </script>
+  <link rel="stylesheet" href="https://unpkg.com/flatpickr@4.0.3/dist/flatpickr.min.css">
+  <script src="https://unpkg.com/flatpickr@4.0.3/dist/flatpickr.min.js"></script>
+  <style>
+    img {
+      max-width: 100%
+    }
+
+    input,
+    textarea {
+      border: 2px solid #ccc;
+      padding: 0.4rem 0.6rem;
+      margin-top: 0.1rem;
+      margin-bottom: 0.1rem;
+      margin-right: 0.1rem;
+      font-family: monospace;
+      font-size: 14px;
+  }
+
+  </style>
+</body>
+
+</html>
