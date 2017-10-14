@@ -35,93 +35,93 @@ Also displays integration with [flatpickr](https://chmln.github.io/flatpickr).
 
 ## Options
 
-`monthNames` [Array]
+### `monthNames` [Array]
 
 Names of the months to display in the header.
 
 default: `["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]`
 
-`dayNames` [Array]
+### `dayNames` [Array]
 
 Names of the days to display in calendar header. Week starts on Sunday.
 
 default: `["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]`
 
-`entries` [Array]
+### `entries` [Array]
 
 Entries to display. See below.
 
 Default: `[]`
 
-`month` [Integer]
+### `month` [Integer]
 
 Default: current month
 
-`year` [Integer]
+### `year` [Integer]
 
 Default: current year
 
-`escape` [Boolean]
+### `escape` [Boolean]
 
 Whether to escape the `content` field of the event. Set to `false` if you need to display HTML in the modal.
 
 Default: `true`
 
-`showNew` [Boolean]
+### `showNew` [Boolean]
 
 Whether to show the New Event click area on the calendar.
 
 Default: `false`
 
-`newText` [String]
+### `newText` [String]
 
 Text to display in the New Entry area.
 
 Default: `"Add New"`
 
-`previousText` [String]
+### `previousText` [String]
 
 Text to display on the button that goes back in time.
 
 Default: `"Prev"`
 
-`nextText` [String]
+### `nextText` [String]
 
 Text to display on the button that goes forward in time.
 
 Default: `"Next"`
 
-`calendarText` [String]
+### `calendarText` [String]
 
 Text to display on the button that enables the calendar view.
 
 Default: `"Calendar"`
 
-`listText` [String]
+### `listText` [String]
 
 Text to display on the button that enables the list view.
 
 Default: `"List"`
 
-`emptyText` [String]
+### `emptyText` [String]
 
 Text to display when list view is empty.
 
 Default: `"No Events To Display"`
 
-`untitledText` [String]
+### `untitledText` [String]
 
 Text to display when entry title is empty.
 
 Default: `"Untitled"`
 
-`view` [String]
+### `view` [String]
 
 The initial render mode. Must be one of `"calendar"` or `"list"`.
 
 Default: `"calendar"`
 
-`defaultColor` [String]
+### `defaultColor` [String]
 
 Default entry color. Can be overwritten per entry. Should be a dark
 color as text will be white.
@@ -132,36 +132,36 @@ Default: `"darkblue"`
 
 Each entry may have the following keys:
 
-`start` [String] **required**
+### `start` [String] **required**
 
 The starting date/time of the entry in ISO 8601 format.
 Must be of the format `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SS`.
 
-`end` [String]
+### `end` [String]
 
 The ending date/time of the entry in ISO 8601 format.
 Must be of the format `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SS`.
 
-`title` [String]
+### `title` [String]
 
 Title of the entry.
 
 Default: `""`
 
-`content` [String]
+### `content` [String]
 
 Content to display when modal is opened. Can contain
 HTML if `escape` is set to `false` in calendar options.
 
-`color` [String]
+### `color` [String]
 
 CSS color to associate with this entry. 
 
-Default: `"darkblue"`
+### Default: `"darkblue"`
 
 ## Calendar API
 
-`.set(data)`
+### `.set(data)`
 
 This updates the calendar's state with the new values provided and causes the DOM to update.
 
@@ -172,7 +172,7 @@ calendar.set({year: 2018, month: 1}) // jump to Feb 2018
 ```
 
 
-`.get(key)`
+### `.get(key)`
 
 Get calendar state.
 
@@ -180,7 +180,7 @@ Get calendar state.
 const events = calendar.get('events')
 ```
 
-`.observe(key, callback[, options])`
+### `.observe(key, callback[, options])`
 
 Use this to check when the calendar display is changed, 
 possible fetching new event data and updating the calendar with
@@ -193,7 +193,7 @@ calendar.observe('month', function(newMonth, oldMonth) {
 })
 ```
 
-`.destroy()`
+### `.destroy()`
 
 Removes the component from the DOM and removes any observers and event listeners that were created. 
 
@@ -201,9 +201,9 @@ Removes the component from the DOM and removes any observers and event listeners
 calendar.destroy()
 ```
 
-`.on(event, callback)`
+### `.on(event, callback)`
 
-Respond to events.
+Respond to events. See events below.
 
 ## Trigger the modal
 
@@ -216,19 +216,18 @@ calendar.set({showModal: true})
 
 Certain nodes van be reference using the `refs` property of the calendar.
 
-`modalContent`
+### `modalContent`
 
 Usage:
 
 ```js
-
-calendar.refs.modalContent.innerHTML = '<h1>Custom Modal Content</h1>`
+calendar.refs.modalContent.innerHTML = '<h1>Custom Modal Content</h1>'
 calendar.set({showModal: true})
 ```
 
 ## Events
 
-`entryClicked`
+### `entryClicked`
 
 Called when an entry is clicked/tapped in calendar view.
 
@@ -240,15 +239,16 @@ calendar.on('entryClicked', function(event) {
 })
 ```
 
-`newClicked`
+### `newClicked`
 
 Called when the New Entry area is clicked/tapped in calendar view.
 
 Usage:
 
 ```js
-calendar.on('dayClicked', function(event) {
-  console.log(event.day)
+calendar.on('newClicked', function(event) {
+  calendar.refs.modalContent.innerHTML = '<h1>Add New Event</h1>'
+  calendar.set({showModal: true})
 })
 ```
 
