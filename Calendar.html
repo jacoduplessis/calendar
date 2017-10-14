@@ -5,6 +5,9 @@
       <button on:click="set({month: (month+1)%12, year: month === 11 ? year + 1: year})">{{ nextText }}</button>
     </div>
     <span class="title">{{ year }} {{ monthName }}</span>
+    {{#if loading}}
+    <span class="loading">{{ loadingText }}</span>
+    {{/if}}
     <div>
       <button class="{{ view === 'calendar' ? 'is-active': ''}}" on:click="set({view: 'calendar'})">{{ calendarText }}</button>
       <button class="{{ view === 'list' ? 'is-active': ''}}" on:click="set({view: 'list'})">{{ listText }}</button>
@@ -26,7 +29,7 @@
               <td class="{{ weekday.number === '' ? 'filler' : ''}}">
                 <span class="day-number">{{ weekday.number }}</span>
                 {{#each weekday.entries as entry}}
-                  <span class="event {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30, untitledText) }}</span>
+                  <span class="entry {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30, untitledText) }}</span>
                 {{/each}}
                 {{#if showNew}}
                   <div class="add-new" on:click="fire('newClicked', {day: weekday})">{{newText}}</div>
@@ -74,7 +77,7 @@
     <div class="modal-container" ref:modalContent>
       {{#if activeEntry}}
         <span class="title modal-title">{{ activeEntry.title || untitledText }}</span>
-        <div class="event-meta">
+        <div class="entry-meta">
           <strong>Start:</strong> {{activeEntry.startDate.toDateString()}}
           {{#if activeEntry.hasStartTime}}
             <span class="time">{{ activeEntry.startDate.toTimeString().slice(0,5) }}</span>
@@ -87,7 +90,9 @@
             {{/if}}
           {{/if}}
         </div>
-        {{#if escape }}{{ activeEntry.content }}{{else}}{{{ activeEntry.content }}}{{/if}}
+        {{#if escape }}{{ activeEntry.content }}{{else}}
+          <div class="entry-content">{{{ activeEntry.content }}}</div>
+        {{/if}}
       {{/if}}
     </div>
   </div>
@@ -107,6 +112,7 @@
     display: -ms-flexbox;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
   }
 
@@ -118,6 +124,10 @@
   .modal-title {
     display: block;
     margin-bottom: 2rem;
+  }
+
+  .loading {
+    padding: 0 0.6rem;
   }
 
   table {
@@ -165,7 +175,7 @@
     color: white;
   }
 
-  .event {
+  .entry {
     display: block;
     background-color: darkblue;
     padding: 0.1rem 0.3rem;
@@ -195,7 +205,7 @@
     display: none;
   }
 
-  td:hover .add-new {
+  td:not(.filler):hover .add-new {
     display: block;
   }
 
@@ -359,7 +369,7 @@
     border-radius: 3px;
   }
 
-  .event-meta {
+  .entry-meta {
     padding-bottom: 1rem;
     border-bottom: 1px solid #ddd;
     margin-bottom: 1rem;
@@ -370,13 +380,12 @@
 <script>
   export default {
     data: function () {
-      var now = new Date(2017, 9, 1);
       return {
         monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
         dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        month: now.getMonth(),
-        day: now.getDate(),
-        year: now.getFullYear(),
+        month: (new Date()).getMonth(),
+        day: (new Date()).getDate(),
+        year: (new Date()).getFullYear(),
         escape: true,
         previousText: "Prev",
         nextText: "Next",
@@ -392,6 +401,8 @@
         showNew: false,
         entries: [],
         parsedEntries: [],
+        loading: false,
+        loadingText: 'loading...',
       }
     },
     methods: {
