@@ -63,8 +63,8 @@
         '<input id="from-time" placeholder="From Time (optional)" class="time-picker"><br>' +
         '<input id="to-date" placeholder="To Date" class="date-picker">' +
         '<input id="to-time" placeholder="To Time (optional)" class="time-picker"><br>' +
-        '<textarea id="entry-content" placeholder="Enter description" style="width: 100%"></textarea>' +
-        '<button onclick="submitEntry()">Submit</button>'
+        '<div id="entry-content"></div>' +
+        '<button class="button" onclick="submitEntry()">Submit</button>'
 
       cal.set({ 'showModal': true })
       setTimeout(function () {
@@ -82,6 +82,9 @@
           defaultHour: 12,
           defaultMinute: 0
         })
+        pell.init({
+          element: document.getElementById('entry-content'),
+        })
       }, 100)
     })
 
@@ -93,16 +96,20 @@
       return q(s).value.trim()
     }
 
+    function h(s) {
+      return q(s).innerHTML
+    }
+
     function submitEntry() {
       var title = v('#entry-title')
       var fromDate = v('#from-date')
       var fromTime = v('#from-time')
       var toDate = v('#to-date')
       var toTime = v('#to-time')
-      var content = v('#entry-content')
+      var content = h('#entry-content .pell-content')
       var entries = cal.get('entries')
 
-      var start = fromDate 
+      var start = fromDate
       if (!!fromTime) {
         start += ('T' + fromTime)
       }
@@ -123,21 +130,52 @@
   </script>
   <link rel="stylesheet" href="https://unpkg.com/flatpickr@4.0.3/dist/flatpickr.min.css">
   <script src="https://unpkg.com/flatpickr@4.0.3/dist/flatpickr.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/pell@0.7.0/dist/pell.min.css">
+  <script src="https://unpkg.com/pell@0.7.0/dist/pell.min.js"></script>
   <style>
     img {
       max-width: 100%
     }
 
     input,
-    textarea {
+    #entry-content {
       border: 2px solid #ccc;
-      padding: 0.4rem 0.6rem;
       margin-top: 0.1rem;
       margin-bottom: 0.1rem;
       margin-right: 0.1rem;
+    }
+
+    .pell-actionbar,
+    .pell-button {
+      font-family: monospace !important;
+    }
+
+    .pell-button:hover {
+      background-color: whitesmoke;
+    }
+
+    .pell-button[title="Quote"] {
+      width: 40px;
+    }
+
+    input {
+      padding: 0.4rem 0.6rem;
       font-family: monospace;
       font-size: 14px;
-  }
+    }
+
+    .button {
+      padding: 0.4rem 0.8rem;
+      border: 2px solid #ccc;
+      font-family: monospace;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #333;
+      color: white;
+      border-color: black;
+    }
 
   </style>
 </body>
