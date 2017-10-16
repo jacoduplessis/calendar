@@ -1,0 +1,34 @@
+{
+  "entries": [
+    {
+      "dateFrom": "2017-10-10",
+      "timeFrom":"16:00",
+      "dateTo":"2017-10-22",
+      "timeTo":"12:00",
+      "title": "First Event",
+      "color": "#8c2b0e",
+      "id": 1,
+      "image": "https://farm5.staticflickr.com/4413/36005854184_929750b7ac_b.jpg",
+      "content": "<p>Hallo World</p><blockquote>Quote</blockquote><ol><li>A</li><li>B</li><li>C</li></ol>"
+    },
+    {
+      "dateFrom": "2017-10-10",
+      "dateTo": "2017-10-20",
+      "title": "Second Event",
+      "id": 2,
+      "color": "#316509",
+      "content": "",
+      "image": "https://farm5.staticflickr.com/4413/36005854184_929750b7ac_b.jpg"
+    },
+    {
+      "dateFrom": "2017-10-12",
+      "timeFrom":"08:00",
+      "timeTo":"10:00",
+      "dateTo": "2017-10-12",
+      "image": "https://farm5.staticflickr.com/4413/36005854184_929750b7ac_b.jpg",
+      "title": "Third Entry With Image With Some Very Long Text Let Us See What We Need It To Be Even Longer Happens...",
+      "content": "Content Here.",
+      "id": 3
+    }
+  ]
+}

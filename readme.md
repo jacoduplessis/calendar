@@ -6,9 +6,7 @@ The 7Kb JavaScript calendar.
 
 [Basic Usage](https://jacoduplessis.github.io/calendar/)
 
-[Dynamically Adding New Entries](https://jacoduplessis.github.io/calendar/extended.html)
-
-Also displays integration with [flatpickr](https://chmln.github.io/flatpickr).
+[Editor Plugin](https://jacoduplessis.github.io/calendar/extended.html)
 
 ## Usage
 
@@ -19,13 +17,10 @@ Also displays integration with [flatpickr](https://chmln.github.io/flatpickr).
   var calendar = new Calendar({
     target: document.querySelector("#calendar"),
     data: {
-      escape: false,
       entries: [{
-        start: '2017-10-10T16:00:00',
-        end: '2017-10-22',
-        title: 'First Event',
-        color: 'darkred',
-        content: '<p>Hallo World</p>'
+        dateFrom: '2017-10-10',
+        title: 'Hallo',
+        content: 'World'
       }]
     }
   })
@@ -123,8 +118,8 @@ Default: `"calendar"`
 
 ### `defaultColor` [String]
 
-Default entry color. Can be overwritten per entry. Should be a dark
-color as text will be white.
+Default entry color. Can be overwritten per entry. Text color will adapt to
+create contrast.
 
 Default: `"darkblue"`
 
@@ -132,15 +127,21 @@ Default: `"darkblue"`
 
 Each entry may have the following keys:
 
-### `start` [String] **required**
+### `dateFrom` [String] **required**
 
-The starting date/time of the entry in ISO 8601 format.
-Must be of the format `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SS`.
+The starting date in `YYYY-MM-DD` format.
 
-### `end` [String]
+### `timeFrom` [String]
 
-The ending date/time of the entry in ISO 8601 format.
-Must be of the format `YYYY-MM-DD` or `YYYY-MM-DDTHH:MM:SS`.
+The starting time of the entry in `HH:MM` format.
+
+### `dateTo` [String] **required**
+
+The ending date in `YYYY-MM-DD` format. If omitted, the starting date is assumed (same day).
+
+### `timeTo` [String]
+
+The ending time of the entry in `HH:MM` format.
 
 ### `title` [String]
 
@@ -155,9 +156,13 @@ HTML if `escape` is set to `false` in calendar options.
 
 ### `color` [String]
 
-CSS color to associate with this entry. 
+CSS color to associate with this entry. Do not use named colors - a hex code is required.
 
-### Default: `"darkblue"`
+Default: `"#00008b"` (`darkblue`)
+
+### `image` [String]
+
+URL of an image to display in the modal.
 
 ## Calendar API
 

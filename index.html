@@ -11,43 +11,18 @@
 
   <script src="calendar.js"></script>
   <script>
-    var cal = new Calendar({
+    var calendar = new Calendar({
       target: document.querySelector("#calendar"),
       data: {
         escape: false,
         view: 'calendar',
-        defaultColor: 'darkblue',
-        entries: [{
-          start: '2017-10-10T16:00:00',
-          end: '2017-10-22T12:00:00',
-          title: 'First Event',
-          color: 'darkred',
-          content: `
-                <img src="https://farm4.staticflickr.com/3603/3563749537_eff5147fe3_b.jpg">
-                <p>Hallo World</p>
-                <ol>
-                  <li>A</li>
-                  <li>B</li>
-                  <li>C</li>
-                </ol>
-                `
-        },
-        {
-          start: '2017-10-10',
-          end: '2017-10-20',
-          title: 'Second Event',
-          color: 'darkgreen',
-          content: ``
-        },
-        {
-          start: '2017-10-12T08:00:00',
-          end: '2017-10-12T10:00:00',
-          title: 'Third Event With Some Very Long Text Let Us See What We Need It To Be Even Longer Happens...',
-          content: `Content Here.`
-        }
-
-        ]
       }
+    })
+    calendar.set({loading: true})
+    fetch('entries.json').then(r => r.json()).then(data => {
+      var entries = calendar.get('entries')
+      entries = entries.concat(data.entries)
+      calendar.set({entries: entries, loading: false})
     })
   </script>
   <style>

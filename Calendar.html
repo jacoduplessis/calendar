@@ -1,16 +1,21 @@
 <div>
   <div id="header">
-    <div>
-      <button on:click="set({month: month === 0 ? 11 : month-1, year: month === 0 ? year-1 : year})">{{ previousText }}</button>
-      <button on:click="set({month: (month+1)%12, year: month === 11 ? year + 1: year})">{{ nextText }}</button>
+    <div class="left">
+      <div class="nav-buttons">
+        <button on:click="set({month: month === 0 ? 11 : month-1, year: month === 0 ? year-1 : year})">{{ previousText }}</button>
+        <button on:click="set({month: (month+1)%12, year: month === 11 ? year + 1: year})">{{ nextText }}</button>
+      </div>
+      <span class="title">{{ year }} {{ monthName }}
+        {{#if loading}}
+          <small class="loading">{{ loadingText }}</small>
+        {{/if}}
+      </span>
     </div>
-    <span class="title">{{ year }} {{ monthName }}</span>
-    {{#if loading}}
-    <span class="loading">{{ loadingText }}</span>
-    {{/if}}
-    <div>
-      <button class="{{ view === 'calendar' ? 'is-active': ''}}" on:click="set({view: 'calendar'})">{{ calendarText }}</button>
-      <button class="{{ view === 'list' ? 'is-active': ''}}" on:click="set({view: 'list'})">{{ listText }}</button>
+    <div class="right">
+      <div class="view-buttons">
+        <button class="{{ view === 'calendar' ? 'is-active': ''}}" on:click="set({view: 'calendar'})">{{ calendarText }}</button>
+        <button style="margin-left: 5px" class="{{ view === 'list' ? 'is-active': ''}}" on:click="set({view: 'list'})">{{ listText }}</button>
+      </div>
     </div>
   </div>
   {{#if view==='calendar' }}
@@ -29,10 +34,10 @@
               <td class="{{ weekday.number === '' ? 'filler' : ''}}">
                 <span class="day-number">{{ weekday.number }}</span>
                 {{#each weekday.entries as entry}}
-                  <span class="entry {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30, untitledText) }}</span>
+                  <span class="entry {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}; color: {{ colorContrast(entry.color) }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30, untitledText) }}</span>
                 {{/each}}
                 {{#if showNew}}
-                  <div class="add-new" on:click="fire('newClicked', {day: weekday})">{{newText}}</div>
+                  <div class="add-new" on:click="fire('newClicked', {day: weekday})">+</div>
                 {{/if}}
               </td>
             {{/each}}
@@ -41,7 +46,6 @@
       </tbody>
     </table>
   {{else}}
-
     {{#if monthData.numEntries===0 }}
       <div class="no-entries">{{emptyText}}</div>
     {{/if}}
@@ -55,11 +59,11 @@
             {{#each weekday.entries as entry}}
               <p>
                 <span class="dot" style="background-color: {{ entry.color || defaultColor }}"></span>
-                {{#if entry.hasStartTime && entry.days.length===1 }}
-                  <span class="row-entry-time">{{ entry.startDate.toTimeString().slice(0,5) }}</span>
+                {{#if entry.timeFrom && entry.days.length===1 }}
+                  <span class="row-entry-time">{{ entry.timeFrom }}</span>
                 {{/if}}
-                {{#if entry.hasEndTime && entry.days.length===1 }}
-                  <span class="row-entry-time">- {{ entry.endDate.toTimeString().slice(0,5) }}</span>
+                {{#if entry.timeTo && entry.days.length===1 }}
+                  <span class="row-entry-time">- {{ entry.timeTo }}</span>
                 {{/if}}
 
                 <span class="row-entry-title" on:click="loadEntry(entry)">{{ charLimit(entry.title, 70, untitledText) }}</span>
@@ -74,29 +78,40 @@
 <div class="modal {{ showModal ? 'is-active' : ''}}">
   <div class="modal-background" on:click="set({showModal: false})"></div>
   <div class="modal-content">
+    <button class="modal-close is-large" aria-label="close" on:click="set({showModal: false})"></button>
     <div class="modal-container" ref:modalContent>
       {{#if activeEntry}}
         <span class="title modal-title">{{ activeEntry.title || untitledText }}</span>
         <div class="entry-meta">
           <strong>Start:</strong> {{activeEntry.startDate.toDateString()}}
-          {{#if activeEntry.hasStartTime}}
-            <span class="time">{{ activeEntry.startDate.toTimeString().slice(0,5) }}</span>
+          {{#if activeEntry.timeFrom}}
+            <span class="time">{{ activeEntry.timeFrom }}</span>
           {{/if}}
-          {{#if activeEntry.end }}
+          {{#if activeEntry.dateTo }}
             <br>
             <strong>End:</strong> {{activeEntry.endDate.toDateString()}}
-            {{#if activeEntry.hasEndTime}}
-              <span class="time">{{ activeEntry.endDate.toTimeString().slice(0,5) }}</span>
+            {{#if activeEntry.timeTo}}
+              <span class="time">{{ activeEntry.timeTo }}</span>
             {{/if}}
           {{/if}}
         </div>
+        {{#if activeEntry.image}}
+          <img src="{{activeEntry.image}}" alt="{{activeEntry.title}}">
+        {{/if}}
         {{#if escape }}{{ activeEntry.content }}{{else}}
-          <div class="entry-content">{{{ activeEntry.content }}}</div>
+          <div>{{{ activeEntry.content }}}</div>
         {{/if}}
       {{/if}}
     </div>
+    {{#if modalButtons.length> 1}}
+      <div class="modal-buttons">
+        {{#each modalButtons as button}}
+          <button class="button" on:click="fire(button.id, {entry: activeEntry})">{{button.text}}</button>
+        {{/each}}
+      </div>
+    {{/if}}
   </div>
-  <button class="modal-close is-large" aria-label="close" on:click="set({showModal: false})"></button>
+
 </div>
 
 <style>
@@ -107,6 +122,11 @@
     font-size: 14px;
   }
 
+  img {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+
   #header {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -114,6 +134,47 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+    flex-flow: row wrap;
+  }
+
+  small {
+    font-size: 0.8rem;
+    font-weight: 300;
+  }
+
+  .left,
+  .right {
+    display: flex;
+  }
+
+  @media screen and (max-width: 700px) {
+    .nav-buttons {
+      order: 3;
+    }
+
+    .view-buttons {
+      order: 4;
+    }
+
+    .left,
+    .right {
+      flex-direction: column;
+      align-self: flex-end;
+    }
+
+    .nav-buttons,
+    .view-buttons {
+      flex-basis: 49%;
+      margin-top: 0.6rem;
+    }
+
+    .title {
+      min-width: 60%;
+    }
+  }
+
+  .nav-buttons {
+    margin-right: 1rem;
   }
 
   .title {
@@ -134,7 +195,7 @@
     width: 100%;
     max-width: 100%;
     border-collapse: collapse;
-
+    table-layout: fixed;
   }
 
   tbody tr {
@@ -143,8 +204,6 @@
 
   th {
     background: whitesmoke;
-    min-width: 14.25%;
-    max-width: 25%;
   }
 
   td {
@@ -187,6 +246,13 @@
     cursor: pointer;
   }
 
+  @media screen and (max-width: 600px) {
+    .entry {
+      font-size: 0;
+      height: 20px;
+    }
+  }
+
   .filler {
     border: none;
   }
@@ -198,11 +264,14 @@
   .add-new {
     background-color: whitesmoke;
     width: 100%;
-    padding: 1rem 0;
+    padding: 0.5rem 0;
     text-align: center;
     border: 2px dashed #ccc;
     cursor: pointer;
     display: none;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #777;
   }
 
   td:not(.filler):hover .add-new {
@@ -245,7 +314,6 @@
   .modal {
     bottom: 0;
     left: 0;
-    position: absolute;
     right: 0;
     top: 0;
     -webkit-box-align: center;
@@ -269,25 +337,26 @@
   .modal-background {
     bottom: 0;
     left: 0;
-    position: absolute;
+    position: fixed;
     right: 0;
     top: 0;
     background-color: rgba(10, 10, 10, 0.86);
   }
 
-  .modal-content,
-  .modal-card {
+  .modal-content {
     margin: 0 20px;
-    max-height: calc(100vh - 160px);
+    max-height: calc(100vh - 100px);
     overflow: auto;
     position: relative;
     width: 100%;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 3px;
   }
 
   @media screen and (min-width: 769px),
   print {
-    .modal-content,
-    .modal-card {
+    .modal-content {
       margin: 0 auto;
       max-height: calc(100vh - 40px);
       width: 640px;
@@ -313,26 +382,19 @@
     -ms-flex-negative: 0;
     flex-shrink: 0;
     font-size: 1rem;
-    height: 32px;
-    max-height: 32px;
-    max-width: 32px;
-    min-height: 32px;
-    min-width: 32px;
-    width: 32px;
     outline: none;
-    position: relative;
+    position: absolute;
     vertical-align: top;
     background: none;
     height: 40px;
-    position: fixed;
-    right: 20px;
-    top: 20px;
+    right: 5px;
+    top: 5px;
     width: 40px;
   }
 
   .modal-close:before,
   .modal-close:after {
-    background-color: white;
+    background-color: #333;
     content: "";
     display: block;
     left: 50%;
@@ -363,16 +425,16 @@
     background-color: rgba(10, 10, 10, 0.4);
   }
 
-  .modal-container {
-    padding: 2rem;
-    background-color: white;
-    border-radius: 3px;
+  .entry-meta {
+    margin-bottom: 1rem;
   }
 
-  .entry-meta {
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 1rem;
+  .modal-buttons {
+    margin-top: 1rem;
+  }
+
+  .modal-buttons button {
+    margin-right: 5px;
   }
 
 </style>
@@ -395,7 +457,7 @@
         emptyText: "No Events To Display",
         newText: "Add New",
         view: 'calendar',
-        defaultColor: 'darkblue',
+        defaultColor: '#00008b',
         showModal: false,
         activeEntry: null,
         showNew: false,
@@ -403,6 +465,14 @@
         parsedEntries: [],
         loading: false,
         loadingText: 'loading...',
+        modalButtons: [{
+          text: "One",
+          id: "btn-one",
+        },
+        {
+          text: "Two",
+          id: "btn-two",
+        }]
       }
     },
     methods: {
@@ -412,30 +482,47 @@
           showModal: true,
           activeEntry: entry,
         })
-      }
+      },
     },
     helpers: {
       charLimit: function (str, n, empty) {
         if (!str) return empty || ' '
         if (str.length <= n) return str
         return str.substr(0, n) + '...'
+      },
+      colorContrast: function (hex) {
+        console.log(hex)
+        if (!hex) return '#ffffff'
+        var color = (hex.charAt(0) === '#') ? hex.substring(1, 7) : hex;
+        var r = parseInt(color.substring(0, 2), 16); // hexToR
+        var g = parseInt(color.substring(2, 4), 16); // hexToG
+        var b = parseInt(color.substring(4, 6), 16); // hexToB
+        console.log(r,g,b)
+        return (((r * 0.299) + (g * 0.587) + (b * 0.114)) > 186) ? '#000000' : '#ffffff';
       }
     },
     oncreate: function () {
+      window.addEventListener('keydown', function (e) {
+        if (e.keyCode === 27) { this.set({ showModal: false }) }
+      }.bind(this))
       this.observe('showModal', function (showModal) {
         if (!showModal) {
           this.set({ activeEntry: null })
           this.refs.modalContent.innerHTML = ''
+          document.querySelector('html').style.overflow = ''
+        } else {
+          document.querySelector('html').style.overflow = 'hidden'
         }
       })
       this.observe('entries', function (entries) {
+        var calendar = this
         var parsedEntries = entries.map(function (e) {
-          e.hasStartTime = e.start.indexOf('T') > -1
-          e.startDate = new Date(Date.parse(e.start))
+          if (!e.id) e.id = Math.random().toString(36).substr(2)
+          if (!e.color) e.color = calendar.get('defaultColor')
+          e.startDate = new Date(Date.parse(e.dateFrom))
           e.days = [e.startDate.toDateString()]
-          if (e.end) {
-            e.hasEndTime = e.end.indexOf('T') > -1
-            e.endDate = new Date(Date.parse(e.end))
+          if (e.dateTo) {
+            e.endDate = new Date(Date.parse(e.dateTo))
             var deltaStart = new Date(+e.startDate)
             var deltaEnd = new Date(+e.endDate);
             ;[deltaStart, deltaEnd].forEach(function (d) {
