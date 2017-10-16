@@ -19,7 +19,7 @@
       }
     })
     calendar.set({loading: true})
-    fetch('entries.json').then(r => r.json()).then(data => {
+    fetch("entries.json").then(r => r.json()).then(data => {
       var entries = calendar.get('entries')
       entries = entries.concat(data.entries)
       calendar.set({entries: entries, loading: false})

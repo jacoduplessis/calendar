@@ -4,9 +4,9 @@ The 7Kb JavaScript calendar.
 
 ## Demos
 
-[Basic Usage](https://jacoduplessis.github.io/calendar/)
+[Basic Usage](https://jacoduplessis.github.io/calendar/demo-basic.html)
 
-[Editor Plugin](https://jacoduplessis.github.io/calendar/extended.html)
+[Editor Plugin](https://jacoduplessis.github.io/calendar/demo-editor.html)
 
 ## Usage
 

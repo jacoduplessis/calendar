@@ -9,7 +9,7 @@
   <body>
       <div id="editor"></div>
       <div id="calendar" style="max-width: 800px;margin: 1rem auto;padding: 0 5px"></div>
-      <pre id="debug" style="overflow-x:hidden"></pre>
+      <!-- <pre id="debug" style="overflow-x:hidden"></pre> -->
       <script src="editor.js"></script>
       <script src="calendar.js"></script>
       
@@ -34,10 +34,10 @@
           }
         })
 
-        var debug = document.querySelector('#debug')
-        calendar.observe('entries', function(x) {
-          debug.textContent = JSON.stringify(x, null, 4)
-        })
+        // var debug = document.querySelector('#debug')
+        // calendar.observe('entries', function(x) {
+        //   debug.textContent = JSON.stringify(x, null, 4)
+        // })
       </script>
       <style>
         img {
