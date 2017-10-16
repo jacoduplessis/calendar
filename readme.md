@@ -28,7 +28,7 @@ The 7Kb JavaScript calendar.
 
 ```
 
-## Options
+## Data Object
 
 ### `monthNames` [Array]
 
@@ -44,7 +44,7 @@ default: `["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]`
 
 ### `entries` [Array]
 
-Entries to display. See below.
+Entries to display. See `Entry Object` below.
 
 Default: `[]`
 
@@ -185,7 +185,7 @@ var entries = calendar.get('entries')
 ### `.observe(key, callback[, options])`
 
 Use this to check when the calendar display is changed, 
-possible fetching new event data and updating the calendar with
+possible fetching new entry data and updating the calendar with
 `.set`.
 
 Usage:
@@ -194,6 +194,10 @@ Usage:
 calendar.observe('month', function(newMonth, oldMonth) {
   console.log("Month changed from", oldMonth, "to", newMonth)
   console.log("Year is", cal.get('year'))
+  fetch(`/entries/?year=${cal.get('year')}&month=${newMonth}`).then(r => r.json()).then(data => {
+    const entries = cal.get('entries')
+    cal.set({entries: entries.concat(data.entries)})
+  })
 })
 ```
 
@@ -262,6 +266,21 @@ calendar.on('newClicked', function(event) {
 
 All strings can be overwritten in the options, so if you need
 something other than English, just pass in the translated strings.
+
+## Custom Modal Buttons
+
+```js
+
+calendar.set({
+  modalButtons: [
+    {id:'do-something', text: 'Click Me'}
+  ]
+})
+
+calendar.on('do-something', function(event) {
+  console.log(event.entry)
+})
+```
 
 ## Todo
 
