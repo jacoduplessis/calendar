@@ -65,7 +65,6 @@
                 {{#if entry.timeTo && entry.days.length===1 }}
                   <span class="row-entry-time">- {{ entry.timeTo }}</span>
                 {{/if}}
-
                 <span class="row-entry-title" on:click="loadEntry(entry)">{{ charLimit(entry.title, 70, untitledText) }}</span>
               </p>
             {{/each}}
@@ -78,7 +77,7 @@
 <div class="modal {{ showModal ? 'is-active' : ''}}">
   <div class="modal-background" on:click="set({showModal: false})"></div>
   <div class="modal-content">
-    <button class="modal-close is-large" aria-label="close" on:click="set({showModal: false})"></button>
+    <button class="modal-close" aria-label="close" on:click="set({showModal: false})">+</button>
     <div class="modal-container" ref:modalContent>
       {{#if activeEntry}}
         <span class="title modal-title">{{ activeEntry.title || untitledText }}</span>
@@ -364,6 +363,7 @@
   }
 
   .modal-close {
+    outline: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -371,58 +371,21 @@
     user-select: none;
     -moz-appearance: none;
     -webkit-appearance: none;
-    background-color: rgba(10, 10, 10, 0.2);
-    border: none;
     border-radius: 290486px;
-    cursor: pointer;
-    display: inline-block;
-    -webkit-box-flex: 0;
-    -ms-flex-positive: 0;
-    flex-grow: 0;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
-    font-size: 1rem;
-    outline: none;
     position: absolute;
     vertical-align: top;
     background: none;
-    height: 40px;
-    right: 5px;
-    top: 5px;
-    width: 40px;
-  }
-
-  .modal-close:before,
-  .modal-close:after {
-    background-color: #333;
-    content: "";
-    display: block;
-    left: 50%;
-    position: absolute;
-    top: 50%;
+    width: 30px;
+    height: 30px;
+    right: 0;
+    top: 20px;
     -webkit-transform: translateX(-50%) translateY(-50%) rotate(45deg);
     transform: translateX(-50%) translateY(-50%) rotate(45deg);
     -webkit-transform-origin: center center;
     transform-origin: center center;
-  }
-
-  .modal-close:before {
-    height: 2px;
-    width: 50%;
-  }
-
-  .modal-close:after {
-    height: 50%;
-    width: 2px;
-  }
-
-  .modal-close:hover,
-  .modal-close:focus {
-    background-color: rgba(10, 10, 10, 0.3);
-  }
-
-  .modal-close:active {
-    background-color: rgba(10, 10, 10, 0.4);
+    border: none;
+    font-size: 20px;
+    font-weight: 600;
   }
 
   .entry-meta {
@@ -464,14 +427,7 @@
         parsedEntries: [],
         loading: false,
         loadingText: 'loading...',
-        modalButtons: [{
-          text: "One",
-          id: "btn-one",
-        },
-        {
-          text: "Two",
-          id: "btn-two",
-        }]
+        modalButtons: []
       }
     },
     methods: {
@@ -490,20 +446,19 @@
         return str.substr(0, n) + '...'
       },
       colorContrast: function (hex) {
-        console.log(hex)
         if (!hex) return '#ffffff'
         var color = (hex.charAt(0) === '#') ? hex.substring(1, 7) : hex;
         var r = parseInt(color.substring(0, 2), 16); // hexToR
         var g = parseInt(color.substring(2, 4), 16); // hexToG
         var b = parseInt(color.substring(4, 6), 16); // hexToB
-        console.log(r,g,b)
         return (((r * 0.299) + (g * 0.587) + (b * 0.114)) > 186) ? '#000000' : '#ffffff';
       }
     },
     oncreate: function () {
+      var calendar = this
       window.addEventListener('keydown', function (e) {
-        if (e.keyCode === 27) { this.set({ showModal: false }) }
-      }.bind(this))
+        if (e.keyCode === 27) { calendar.set({ showModal: false }) }
+      })
       this.observe('showModal', function (showModal) {
         if (!showModal) {
           this.set({ activeEntry: null })
@@ -514,7 +469,7 @@
         }
       })
       this.observe('entries', function (entries) {
-        var calendar = this
+
         var parsedEntries = entries.map(function (e) {
           if (!e.id) e.id = Math.random().toString(36).substr(2)
           if (!e.color) e.color = calendar.get('defaultColor')
