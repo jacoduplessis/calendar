@@ -4,12 +4,11 @@
   "main": "calendar.js",
   "license": "MIT",
   "scripts": {
-    "dev": "while inotifywait -e close_write Calendar.html; do node build.js; done",
+    "dev": "while inotifywait -e close_write Calendar.html Editor.html; do node build.js; done",
+    "build": "NODE_ENV=production node build.js",
     "measure": "gzip -c calendar.js | wc -c"
   },
   "devDependencies": {
-    "flatpickr": "^4.0.4",
-    "pell": "^0.7.0",
     "svelte": "^1.40.2",
     "uglify-js": "^3.1.3"
   }

@@ -6,14 +6,6 @@ commander@~2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
 
-flatpickr@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/flatpickr/-/flatpickr-4.0.4.tgz#cbf4e8805ff24e2a178638bef012da86f8e059f1"
-
-pell@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/pell/-/pell-0.7.0.tgz#46b3fcdfa8dd7e5999f73c550a337ecc80193dcc"
-
 source-map@~0.5.1:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
