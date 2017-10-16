@@ -68,12 +68,6 @@ Whether to show the New Event click area on the calendar.
 
 Default: `false`
 
-### `newText` [String]
-
-Text to display in the New Entry area.
-
-Default: `"Add New"`
-
 ### `previousText` [String]
 
 Text to display on the button that goes back in time.
@@ -268,3 +262,7 @@ calendar.on('newClicked', function(event) {
 
 All strings can be overwritten in the options, so if you need
 something other than English, just pass in the translated strings.
+
+## Todo
+
+Editor plugin form validation
