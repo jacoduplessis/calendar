@@ -2,11 +2,22 @@
 
 The 7Kb JavaScript calendar.
 
+You worked so hard to keep your app small. And then came the manager's request to add a calendar.
+Shit. Now you need Moment and jQuery and all your self-discipline means nothing. Until now.
+
+**This is under active development and the API is still a work in progress.**
+
+The purpose of this library is to render 'events'. It offers a `calendar` view as well
+as a `list` view.
+
+In order to avoid confusion with JavaScript events, calendar 'events' are known 
+as `entries` (singular: `entry`) in the code base and API.
+
 ## Demos
 
-[Basic Usage](https://jacoduplessis.github.io/calendar/demo-basic.html)
+[Basic Usage](https://jacoduplessis.github.io/calendar/demo/basic.html)
 
-[Editor Plugin](https://jacoduplessis.github.io/calendar/demo-editor.html)
+[Editor Plugin](https://jacoduplessis.github.io/calendar/demo/editor.html)
 
 ## Usage
 
@@ -50,15 +61,19 @@ Default: `[]`
 
 ### `month` [Integer]
 
+Along with `year` determines which month is displayed.
+
 Default: current month
 
 ### `year` [Integer]
+
+Along with `month` determines which month is displayed.
 
 Default: current year
 
 ### `escape` [Boolean]
 
-Whether to escape the `content` field of the event. Set to `false` if you need to display HTML in the modal.
+Whether to escape the `content` field of the event. Set to `false` if you need to display HTML in the modal. Needless to say, you need to sanitize user generated content server-side.
 
 Default: `true`
 
@@ -117,25 +132,30 @@ create contrast.
 
 Default: `"darkblue"`
 
+### `message` [String]
+
+Message to display in the header, useful for indication loading status.
+
+### `banner` [String]
+
+Display an important notification to the user, such as connections errors.
+
 ## Entry Object
 
 Each entry may have the following keys:
 
-### `dateFrom` [String] **required**
+### `start` [String] **required**
 
-The starting date in `YYYY-MM-DD` format.
+The starting date/time in ISO8601 format and UTC timezone, e.g. 2017-01-01T10:00:00Z.
 
-### `timeFrom` [String]
+### `end` [String]
 
-The starting time of the entry in `HH:MM` format.
+The ending date/time in ISO8601 format and UTC timezone, e.g. 2017-01-01T10:00:00Z.
+If omitted, will be the same as `start`, and `allDay` will be `false`.
 
-### `dateTo` [String] **required**
+### `all_day` [Boolean]
 
-The ending date in `YYYY-MM-DD` format. If omitted, the starting date is assumed (same day).
-
-### `timeTo` [String]
-
-The ending time of the entry in `HH:MM` format.
+Whether to use only the date component of `start`/`end`. 
 
 ### `title` [String]
 
@@ -157,6 +177,10 @@ Default: `"#00008b"` (`darkblue`)
 ### `image` [String]
 
 URL of an image to display in the modal.
+
+### `url` [String]
+
+External link.
 
 ## Calendar API
 

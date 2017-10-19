@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "start": "2017-10-10T11:00:00Z",
+      "title": "First Event",
+      "color": "#8c2b0e",
+      "id": 1,
+      "image": "",
+      "content": "<p>Hallo World</p><blockquote>Quote</blockquote><ol><li>A</li><li>B</li><li>C</li></ol>"
+    },
+    {
+      "start": "2017-10-20T06:00:00Z",
+      "end": "2017-10-21T14:00:00Z",
+      "title": "Second Event",
+      "id": 2,
+      "color": "#316509",
+      "content": "",
+      "image": ""
+    },
+    {
+      "start": "2017-10-12",
+      "end":"2017-10-26",
+      "all_day": true,
+      "image": "",
+      "title": "Third Entry With Image With Some Very Long Text Let Us See What We Need It To Be Even Longer Happens...",
+      "content": "Content Here.",
+      "id": 3
+    },
+    {
+      "start": "2017-10-28T08:00:00Z",
+      "end":"2017-10-28T20:00:00Z",
+      "all_day": false,
+      "image": "",
+      "title": "Start & End",
+      "content": "Content Here.",
+      "color": "#777507",
+      "id": 4
+    }
+  ]
+}

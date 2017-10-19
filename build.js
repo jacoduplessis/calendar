@@ -1,32 +1,42 @@
-const svelte = require('svelte')
-const fs = require('fs')
-const uglify = require('uglify-js')
+const rollup = require('rollup')
+const uglify = require('rollup-plugin-uglify')
+const svelte = require('rollup-plugin-svelte')
+const buble = require('rollup-plugin-buble')
 
+const prod = process.env.NODE_ENV === 'production';
 
-const prod = process.env.NODE_ENV === 'production'
-
-
-const components = [
-  {filename: 'Calendar.html', name: 'Calendar', dist: 'calendar.js'},
-  {filename: 'Editor.html', name: 'Editor', dist: 'editor.js'},
-]
-
-components.forEach(({filename, name, dist, deps}) => {
-  const source = fs.readFileSync(filename, 'utf8')
-  const compiled = svelte.compile(source, {
-    filename,
-    name,
+rollup.rollup({
+  input: './src/Calendar.html',
+  plugins: [
+    svelte({
+      css: css => css.write('./dist/calendar.css'),
+			cascade: false
+    }),
+    prod && buble({ exclude: 'node_modules/**' }),
+    prod && uglify()
+  ]
+}).then(bundle => {
+  bundle.write({
     format: 'iife',
-    cascade: false,
-    dev: !prod,
+    name: 'Calendar',    
+    file: './dist/calendar.js'
   })
-  let code = ''
-
-  code += compiled.code
-  if (prod) code = uglify.minify(code).code
-  fs.writeFileSync(dist, code)
 })
 
-
-
-
+rollup.rollup({
+  input: './src/Editor.html',
+  plugins: [
+    svelte({
+      css: css => css.write('./dist/editor.css'),
+			cascade: false
+    }),
+    prod && buble({ exclude: 'node_modules/**' }),    
+    prod && uglify()
+  ]
+}).then(bundle => {
+  bundle.write({
+    format: 'iife',
+    name: 'Editor',    
+    file: './dist/editor.js'
+  })
+})

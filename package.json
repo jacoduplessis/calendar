@@ -1,14 +1,17 @@
 {
   "name": "calendar",
   "version": "1.0.0",
-  "main": "calendar.js",
   "license": "MIT",
   "scripts": {
-    "dev": "while inotifywait -e close_write Calendar.html Editor.html; do node build.js; done",
+    "dev": "while inotifywait -e close_write src ; do NODE_ENV=development node build.js; done",
     "build": "NODE_ENV=production node build.js",
-    "measure": "gzip -c calendar.js | wc -c"
+    "measure": "gzip -c ./dist/calendar.js | wc -c"
   },
   "devDependencies": {
+    "rollup": "^0.50.0",
+    "rollup-plugin-buble": "^0.16.0",
+    "rollup-plugin-svelte": "^3.1.0",
+    "rollup-plugin-uglify": "^2.0.1",
     "svelte": "^1.40.2",
     "uglify-js": "^3.1.3"
   }

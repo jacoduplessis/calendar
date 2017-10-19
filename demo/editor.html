@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Calendar</title>
+</head>
+
+<body style="max-width: 800px;margin: 1rem auto;padding: 0 5px">
+  <div id="editor"></div>
+  <div id="calendar"></div>
+  <div>
+    <p>Try executing the following your browser console:</p>
+
+    <p>
+      <pre>setTimeout(function() { calendar.set({message: ''})}, 3000)<br>calendar.set({message: 'loading...'})</pre>
+    </p>
+    <p>
+      <pre>calendar.set({banner: 'Something went wrong and data could not be loaded.'})</pre>
+    </p>
+  </div>
+  <pre id="debug" style="overflow-x:hidden"></pre>
+  <link rel="stylesheet" href="../dist/calendar.css">
+  <link rel="stylesheet" href="../dist/editor.css">
+  <script src="../dist/editor.js"></script>
+  <script src="../dist/calendar.js"></script>
+
+  <script>
+    var calendar = new Calendar({
+      target: document.querySelector("#calendar"),
+      data: {
+        showNew: true,
+        escape: false,
+      }
+    })
+    calendar.set({ message: 'loading...' })
+    fetch("entries.json").then(r => r.json()).then(data => {
+      var entries = calendar.get('entries')
+      entries = entries.concat(data.entries)
+      calendar.set({ entries: entries, message: '' })
+    })
+    var editor = new Editor({
+      target: document.querySelector("#editor"),
+      data: {
+        calendar: calendar
+      }
+    })
+
+    function debug() {
+      document.querySelector('#debug').textContent = JSON.stringify(calendar.get(), null, 4)
+    }
+  </script>
+  <style>
+    img {
+      max-width: 100%;
+    }
+
+    pre {
+      background-color: whitesmoke;
+      padding: 1.4rem;
+    }
+
+  </style>
+</body>
+
+</html>

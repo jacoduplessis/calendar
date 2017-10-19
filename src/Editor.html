@@ -1,0 +1,352 @@
+<Modal show="{{show}}" 
+  on:modalClose="set({show:false})" 
+  on:modalOpen="set({show:true})"
+  title="{{ mode === 'create' ? newTitleText : editTitleText }}"
+  color="{{ entry.color }}"
+  >
+
+  <div class="field">
+    <label>Entry Title</label>
+    <input id="entry-title" placeholder="Enter a short but descriptive title" bind:value="entry.title">
+  </div>
+  <div class="field">
+    <label>All Day</label>
+    <input type="checkbox" bind:checked="entry.all_day">
+  </div>
+  <div class="field-group">
+    <div class="field">
+      <label>Start</label>
+      <input type="text" bind:value="start_date" placeholder="YYYY-MM-DD">
+      
+    </div>
+    {{#if !entry.all_day }}
+      <div class="field">
+        <label>Time From</label>
+        <input type="text" placeholder="optional" bind:value="start_time">
+      </div>
+    {{/if}}
+    
+  </div>
+  <p class="feedback">{{ entry.all_day ? _start.toDateString() : _start.toString() }}</p>
+  <div class="field-group">
+    <div class="field">
+      <label>End</label>
+      <input type="text" bind:value="end_date" placeholder="YYYY-MM-DD">
+    </div>
+    {{#if !entry.all_day }}
+      <div class="field">
+        <label>Time To</label>
+        <input type="text" placeholder="optional" bind:value="end_time">
+      </div>
+    {{/if}}
+  </div>
+  <p class="feedback">{{ entry.all_day ? _end.toDateString() : _end.toString() }}</p>
+
+  <div class="field">
+    <label>Entry Color</label>
+    <div>
+      {{#each colorOptions as hex }}
+        <span class="color {{ color === hex ? 'selected' : ''}}" 
+          style="background-color: {{hex}}" on:click="setDeep('entry.color', hex)"></span>
+      {{/each}}
+    </div>
+  </div>
+  <div class="field">
+    <label>Content</label>
+    <textarea bind:value="entry.content"></textarea>
+  </div>
+  <button class="button" on:click="submit()" ref:submitButton>Submit</button>
+</Modal>
+
+<script>
+
+  import Modal from './Modal.html'
+  import { setDeep } from './extras'
+  import { offset, localDate, localTime } from './utils'
+
+  export default {
+    components: { Modal },
+    oncreate: function () {
+
+      var calendar = this.get('calendar')
+
+      this.set({
+        monthNames: calendar.get('monthNames'),
+        defaultColor: calendar.get('defaultColor'),
+      })
+
+      this.reset()
+
+      calendar.on('newClicked', event => {
+        var date = event.day.date
+        var placeholder = date.toISOString().substr(0, 10)
+        date.setHours(10)
+        this.set({
+          show: true,
+          start_date: placeholder,
+          end_date: placeholder,
+          start_time: "12:00",
+          end_time: "12:00",
+          entry: {
+            title: '',
+            color: this.get('defaultColor'),
+            all_day: false,
+            content: '',
+          }
+        })
+      })
+
+      calendar.on('editClicked', event => {
+        const entry = Object.assign({}, event.entry)
+        calendar.set({ showModal: false })
+        const start_date = localDate(entry._start)
+        const start_time = localTime(entry._start)
+        const end_date = localDate(entry._end)
+        const end_time = localTime(entry._end)
+        this.set({
+          entry,
+          start_date,
+          start_time,
+          end_date,
+          end_time,
+          show: true,
+          mode: 'edit',
+        })
+      })
+
+      calendar.on('deleteClicked', event => {
+        const entry = event.entry
+        if (confirm("Really delete? There is no undo.")) {
+          this.delete(entry)
+          calendar.set({ showModal: false })
+        }
+      })
+
+      calendar.on('entryClicked', event => {
+        const entry = event.entry
+        this.set({ entry: entry })
+        calendar.set({
+          modalButtons: [
+            { text: 'Edit', id: 'editClicked' },
+            { text: 'Delete', id: 'deleteClicked' }
+          ]
+        })
+      }) 
+    },
+    data: function () {
+      return {
+        calendar: null,
+        show: false,
+        mode: 'create', // or 'edit'
+        entry: {},
+        monthNames: [],
+        newTitleText: 'Add New Entry',
+        editTitleText: 'Edit Entry',
+        start_date: '',
+        start_time: '',
+        end_date: '',
+        end_time: '',
+        color: '',
+        colorOptions: [
+          "#00008b",
+          "#B03060",
+          "#FE9A76",
+          "#FFD700",
+          "#32CD32",
+          "#016936",
+          "#008080",
+          "#0E6EB8",
+          "#EE82EE",
+          "#B413EC",
+          "#A52A2A",
+          "#A0A0A0",
+          "#000000"
+        ]
+      }
+    },
+    helpers: {
+      parsedDate: function (dateString, noTime) {
+        if (!dateString) return '---'
+        var date = (new Date(dateString))
+        if (date.toString().indexOf('nvalid') > -1) return "Invalid Date"
+        return noTime ? date.toDateString() : date.toString()
+      }
+    },
+    computed: {
+      _start: function(start_date, start_time) {
+        return new Date(start_date + 'T' + (start_time || '12:00') + offset())
+      },
+      _end: function(end_date, end_time) {
+        return new Date(end_date + 'T' + (end_time || '12:00') + offset())
+      }
+    },
+    methods: {
+      setDeep,
+      reset: function () {
+        this.set({
+          start_date: '',
+          start_time: '12:00',
+          end_date: '',
+          end_time: '12:00',
+          entry: {
+            title: '',
+            color: this.get('defaultColor'),
+            content: ''
+          }
+        })
+      },
+      submit: function () {
+        var mode = this.get('mode')
+        if (mode === 'create') this.create()
+        if (mode === 'edit') this.update()
+      },
+      update: function () {
+        var calendar = this.get('calendar')
+        var entry = this.get('entry')
+        if (!entry.id) return false
+        var entries = calendar.get('entries')
+        var index = entries.findIndex(e =>  e.id === entry.id)
+        if (index < 0) return false
+        entry.start = this.get('_start').toISOString()
+        entry.end = this.get('_end').toISOString()
+        entries.splice(index, 1, entry)
+        calendar.set({ entries: entries })
+        this.set({ show: false })
+        this.reset()
+        this.fire('entryUpdated', { entry: entry })
+      },
+      create: function () {
+        const calendar = this.get('calendar')
+        const entry = this.get('entry')
+        entry.start = this.get('_start').toISOString()
+        entry.end = this.get('_end').toISOString()
+        entry.id = Math.random().toString(36).substr(2) // temp id
+        const entries = calendar.get('entries')
+        entries.push(entry)
+        calendar.set({ entries: entries })
+        this.set({ show: false })
+        this.fire('entryCreated', { entry: entry })
+      },
+      delete: function (entry) {
+        const calendar = this.get('calendar')
+        if (!entry.id) return false
+        const entries = calendar.get('entries')
+        const index = entries.findIndex(e => e.id === entry.id)
+        if (index < 0) return false
+        entries.splice(index, 1)
+        calendar.set({ entries: entries })
+        this.reset()
+        this.set({ show: false })
+        this.fire('entryDeleted', { entry: entry })
+      }
+    }
+  }
+</script>
+
+<style>
+  * {
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  input,
+  textarea {
+    border: 1px solid #ccc;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+    margin-right: 0.1rem;
+    padding: 0.4rem 0.6rem;
+    font-family: monospace;
+    font-size: 14px;
+    color: black;
+    background-color: white;
+    width: 100%;
+  }
+
+  textarea {
+    min-height: 100px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .feedback {
+    margin-top: 0.4rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  .help {
+    margin: 0.4rem 0;
+    font-size: 0.9rem;
+    color: #333;
+    font-style: italic;
+  }
+
+  .button-bar {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
+  }
+
+  .color {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    border: 1px solid black;
+    margin: 5px;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .color.selected {
+    box-shadow: 2px 2px 3px black;
+  }
+
+  button {
+    font-family: Arial, Helvetica, sans-serif;
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 0.3rem 0.6rem;
+    background: white;
+    color: black;
+  }
+
+  button:hover {
+    cursor: pointer;
+    background: #ddd;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    align-items: flex-start;
+  }
+
+  .field label {
+    margin-bottom: 0.2rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .field-group {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .field-group .field {
+    width: 49%;
+    margin-bottom: 0;
+  }
+
+</style>

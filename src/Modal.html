@@ -1,0 +1,148 @@
+<:Window on:keydown="set({ show: show && event.keyCode !== 27})" />
+<div class="modal {{ show ? 'active' : ''}}">
+  <div class="modal-background" on:click="set({show: false})"></div>
+  <div class="modal-container">
+    <div class="modal-header" style="background-color: {{ color }};">
+      <span class="modal-title" style="color: {{ contrastColor(color) }}">{{ title }}</span>
+      <button class="modal-close" aria-label="close" style="color: {{ contrastColor(color) }}" on:click="set({show: false})">+</button>
+    </div>
+    <div class="modal-body">
+      <slot></slot>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { contrastColor } from './utils'
+
+  export default {
+    data() {
+      return {
+        show: false,
+        title: 'This is the title of the Modal and it might be very long',
+        color: '#f5f5f5', // whitesmoke
+        // color: '#eeeeee',
+      }
+    },
+    helpers: { contrastColor },
+    oncreate: function () {
+      this.observe('show', show => {
+        if (!show) {
+          this.fire('modalClose')
+          document.querySelector('html').style.overflow = ''
+        } else {
+          this.fire('modalOpen')
+          document.querySelector('html').style.overflow = 'hidden'
+        }
+      })
+    }
+  }
+</script>
+
+<style>
+  .modal {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: none;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    overflow: hidden;
+    position: fixed;
+    z-index: 20;
+  }
+
+  .modal.active {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+  }
+
+  .modal-background {
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    background-color: rgba(10, 10, 10, 0.86);
+  }
+
+  .modal-container {
+    margin: 0 20px;
+    max-height: calc(100vh - 100px);
+    overflow: auto;
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 3px;
+  }
+
+  @media screen and (min-width: 769px),
+  print {
+    .modal-container {
+      margin: 0 auto;
+      max-height: calc(100vh - 40px);
+      width: 640px;
+    }
+  }
+
+  .modal-header {
+    padding: 1rem 1rem 1rem 1.4rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .modal-title,
+  .modal-close {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    flex-grow: 1;
+  }
+
+  .modal-body {
+    padding: 2rem;
+    overflow: auto;
+  }
+
+  .modal-close {
+    outline: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    border-radius: 290486px;
+    background: none;
+    width: 30px;
+    height: 30px;
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+    -webkit-transform-origin: center center;
+    transform-origin: center center;
+    border: none;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 0 0 30px;
+    align-self: flex-start;
+  }
+
+  .modal-close:hover {
+    background-color: rgba(10, 10, 10, 0.2);
+  }
+
+</style>

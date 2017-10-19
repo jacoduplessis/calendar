@@ -8,8 +8,9 @@
 </head>
 <body>
   <div id="calendar" style="max-width: 800px;margin: 0 auto;"></div>
-
-  <script src="calendar.js"></script>
+  <pre id="debug"></pre>
+  <link rel="stylesheet" href="../dist/calendar.css">
+  <script src="../dist/calendar.js"></script>
   <script>
     var calendar = new Calendar({
       target: document.querySelector("#calendar"),
@@ -18,12 +19,16 @@
         view: 'calendar',
       }
     })
-    calendar.set({loading: true})
+    calendar.set({message: 'loading...'})
     fetch("entries.json").then(r => r.json()).then(data => {
       var entries = calendar.get('entries')
       entries = entries.concat(data.entries)
-      calendar.set({entries: entries, loading: false})
+      calendar.set({entries: entries, message: ''})
     })
+
+    function debug() {
+        document.querySelector('#debug').textContent = JSON.stringify(calendar.get(), null, 4)
+      }
   </script>
   <style>
     img {

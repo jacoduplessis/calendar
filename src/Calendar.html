@@ -1,0 +1,428 @@
+<div>
+  <div id="header">
+    <div class="left">
+      <div class="nav-buttons">
+        <button on:click="set({month: month === 0 ? 11 : month-1, year: month === 0 ? year-1 : year})">{{ previousText }}</button>
+        <button on:click="set({month: (month+1)%12, year: month === 11 ? year + 1: year})">{{ nextText }}</button>
+      </div>
+      <span class="title">{{ year }} {{ monthNames[month] }}
+        {{#if message}}
+          <small class="message">{{ message }}</small>
+        {{/if}}
+      </span>
+    </div>
+    <div class="right">
+      <div class="view-buttons">
+        <button class="{{ view === 'calendar' ? 'active': ''}}" on:click="set({view: 'calendar'})">{{ calendarText }}</button>
+        <button class="{{ view === 'list' ? 'active': ''}}" on:click="set({view: 'list'})">{{ listText }}</button>
+      </div>
+    </div>
+  </div>
+  {{#if banner}}
+    <div class="banner">{{banner}}</div>
+  {{/if}}
+  {{#if view==='calendar' }}
+    <table>
+      <thead>
+        <tr>
+          {{#each dayNames as dayName}}
+            <th>{{ dayName }}</th>
+          {{/each}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#each monthData.weeks as week}}
+          <tr>
+            {{#each week as weekday}}
+              <td class="{{ weekday.number === '' ? 'filler' : ''}} {{weekday.today ? 'today' : ''}}">
+                <span class="day-number">{{ weekday.number }}</span>
+                {{#each weekday.entries as entry}}
+                  <span class="entry {{ entry.content ? 'has-content' : ''}}" style="background-color: {{ entry.color || defaultColor }}; color: {{ entry.contrastColor }}" on:click="loadEntry(entry)" title="{{ entry.title }}">{{ charLimit(entry.title, 30, untitledText) }}</span>
+                {{/each}}
+                {{#if showNew}}
+                  <div class="add-new" on:click="fire('newClicked', {day: weekday})">+</div>
+                {{/if}}
+              </td>
+            {{/each}}
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    {{#if monthData.numEntries===0 }}
+      <div class="no-entries">{{emptyText}}</div>
+    {{/if}}
+    {{#each monthData.weeks as week}}
+      {{#each week as weekday}}
+        {{#if weekday.entries.length> 0}}
+          <div class="row-header">{{ weekday.date.toDateString() }}</div>
+          <div class="row-content">
+            {{#each weekday.entries as entry}}
+              <p>
+                <span class="dot" style="background-color: {{ entry.color || defaultColor }};"></span>
+                {{#if !entry.all_day && entry.days.length===1 }}
+                  <span class="row-entry-time">{{ entry._start.toTimeString().substr(0,5) }} - {{ entry._end.toTimeString().substr(0,5) }}</span>
+                {{/if}}
+                <span class="row-entry-title" on:click="loadEntry(entry)">{{ charLimit(entry.title, 70, untitledText) }}</span>
+              </p>
+            {{/each}}
+          </div>
+        {{/if}}
+      {{/each}}
+    {{/each}}
+  {{/if}}
+</div>
+
+<Modal show="{{showModal}}" 
+  on:modalClose="set({showModal:false})" 
+  on:modalOpen="set({showModal:true})" 
+  title="{{ activeEntry ? activeEntry.title : untitledText }}"
+  color="{{ activeEntry ? activeEntry.color : defaultColor }}">
+  {{#if activeEntry}}
+    <div class="entry-meta">
+      <strong>Start:</strong> {{activeEntry.all_day ? activeEntry._start.toDateString() : activeEntry._start.toString()}}
+      {{#if activeEntry.end }}
+        <br>
+        <strong>End:</strong> {{activeEntry.all_day ? activeEntry._end.toDateString() : activeEntry._end.toString()}}
+      {{/if}}
+    </div>
+    {{#if activeEntry.image}}
+      <img src="{{activeEntry.image}}" alt="{{activeEntry.title}}">
+    {{/if}}
+    {{#if escape }}{{ activeEntry.content }}{{else}}
+      <div>{{{ activeEntry.content }}}</div>
+    {{/if}}
+  {{/if}}
+  {{#if modalButtons.length> 1}}
+    <div class="modal-buttons">
+      {{#each modalButtons as button}}
+        <button class="button" on:click="fire(button.id, {entry: activeEntry})">{{button.text}}</button>
+      {{/each}}
+    </div>
+  {{/if}}
+</Modal>
+
+<script>
+
+  import Modal from './Modal.html'
+  import { contrastColor, calendarWeeks, charLimit } from './utils'
+  import { setDeep } from './extras'
+
+  function parseEntries(entries) {
+
+    return entries.map(e => {
+      if (!e.id) e.id = Math.random().toString(36).substr(2)
+      if (!e.color) e.color = calendar.get('defaultColor')
+      if (typeof e.all_day === 'undefined') e.all_day = false
+      e.contrastColor = contrastColor(e.color)
+      e._start = new Date(e.start)
+      e.days = [e.start.substr(0, 10)]
+      if (!e.end) {
+        e._end = e._start
+      } else {
+        e._end = new Date(e.end)
+        const deltaStart = new Date(+e._start)
+        const deltaEnd = new Date(+e._end);
+        ;[deltaStart, deltaEnd].forEach(d => {
+          d.setHours(0)
+          d.setMinutes(0)
+          d.setSeconds(0)
+          d.setMilliseconds(0)
+        })
+        const deltaDays = Math.round((deltaEnd - deltaStart) / 1000 / 60 / 60 / 24);
+        for (var i = 0; i < deltaDays; i++) {
+          const date = new Date(+e._start)
+          date.setDate(date.getDate() + i + 1)
+          e.days.push(date.toISOString().substr(0, 10))
+        }
+      }
+      return e
+    })
+  }
+
+  export default {
+    components: { Modal: Modal },
+    data: function () {
+      return {
+        monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        month: (new Date()).getMonth(),
+        day: (new Date()).getDate(),
+        year: (new Date()).getFullYear(),
+        escape: true,
+        previousText: "Prev",
+        nextText: "Next",
+        calendarText: "Calendar",
+        listText: "List",
+        untitledText: "Untitled",
+        emptyText: "No Events To Display",
+        view: 'calendar',
+        defaultColor: '#00008b',
+        showModal: false,
+        activeEntry: null,
+        showNew: false,
+        entries: [],
+        message: '',
+        banner: '',
+        modalButtons: [],
+        utc: 0,
+      }
+    },
+    methods: {
+      setDeep,
+      loadEntry: function (entry) {
+        this.fire('entryClicked', { entry: entry })
+        this.set({
+          showModal: true,
+          activeEntry: entry,
+        })
+      },
+    },
+    helpers: {
+      charLimit,
+    },
+    computed: {
+      monthData: function (year, month, entries) {
+        const calWeeks = calendarWeeks(year, month)
+        const parsedEntries = parseEntries(entries)
+        let numEntries = 0
+        const weeks = calWeeks.map(week => {
+          return week.map(day => {
+            day.entries = parsedEntries.filter(entry => {
+              return entry.days.indexOf(day.dateString) > -1
+            }).sort((a, b) => (+a._start) - (+b._start))
+            numEntries += day.entries.length
+            return day
+          })
+        })
+        return {weeks, numEntries}
+      }
+
+    }
+  }
+</script>
+
+
+<style>
+  * {
+    font-family: Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  img {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  #header {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-flow: row wrap;
+  }
+
+  small {
+    font-size: 0.8rem;
+    font-weight: 300;
+  }
+
+  .left,
+  .right {
+    display: flex;
+  }
+
+  @media screen and (max-width: 700px) {
+    .nav-buttons {
+      order: 3;
+    }
+
+    .view-buttons {
+      order: 4;
+    }
+
+    .left,
+    .right {
+      flex-direction: column;
+      align-self: flex-end;
+    }
+
+    .nav-buttons,
+    .view-buttons {
+      flex-basis: 49%;
+      margin-top: 0.6rem;
+    }
+
+    .title {
+      min-width: 60%;
+    }
+  }
+
+  .nav-buttons {
+    margin-right: 1rem;
+  }
+
+  .title {
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+
+  .message {
+    padding: 0 0.6rem;
+  }
+
+  .banner {
+    padding: 0.4rem 0.8rem;
+    text-align: center;
+    color: #fff;
+    background-color: maroon;
+    margin-bottom: 0.6rem;
+  }
+
+  table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  tbody tr {
+    height: 150px;
+  }
+
+  th {
+    background: whitesmoke;
+  }
+
+  td {
+    text-align: right;
+    vertical-align: top;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+  }
+
+  td.today {
+    background-color: whitesmoke;
+  }
+
+  button {
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 0.3rem 0.6rem;
+    background: white;
+    color: black;
+  }
+
+  button:hover {
+    cursor: pointer;
+    background: #ddd;
+  }
+
+  button.active {
+    background-color: #666;
+    color: white;
+  }
+
+  .entry {
+    display: block;
+    background-color: darkblue;
+    padding: 0.2rem 0.3rem;
+    width: 100%;
+    color: white;
+    border-radius: 3px;
+    text-align: left;
+    margin-bottom: 3px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  @media screen and (max-width: 600px) {
+    .entry {
+      font-size: 0;
+      height: 20px;
+    }
+  }
+
+  .filler {
+    border: none;
+  }
+
+  .time {
+    text-decoration: underline;
+  }
+
+  .add-new {
+    background-color: whitesmoke;
+    width: 100%;
+    padding: 0.5rem 0;
+    text-align: center;
+    border: 2px dashed #ccc;
+    cursor: pointer;
+    display: none;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #777;
+  }
+
+  td.today .add-new {
+    background-color: white;
+  }
+
+  td:not(.filler):hover .add-new {
+    display: block;
+  }
+
+  .row-header {
+    background-color: whitesmoke;
+    padding: 0.8rem 1rem;
+    font-weight: 600;
+  }
+
+  .row-content {
+    padding: 0.8rem 1rem;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    border: 1px solid black;
+  }
+
+  .row-entry-title:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .row-entry-time {
+    font-weight: 600;
+  }
+
+  .no-entries {
+    text-align: center;
+    padding: 10rem 0;
+    width: 100%;
+    background-color: whitesmoke;
+  }
+
+  .entry-meta {
+    margin-bottom: 1rem;
+  }
+
+  .modal-buttons {
+    margin-top: 1rem;
+  }
+
+  .modal-buttons button {
+    margin-right: 5px;
+  }
+
+</style>
