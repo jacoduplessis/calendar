@@ -7,7 +7,7 @@
   <title>Calendar</title>
 </head>
 
-<body style="max-width: 800px;margin: 1rem auto;padding: 0 5px">
+<body style="max-width: 800px;margin: 2rem auto;padding: 0 5px">
   <div id="editor"></div>
   <div id="calendar"></div>
   <div>
@@ -21,10 +21,14 @@
     </p>
   </div>
   <pre id="debug" style="overflow-x:hidden"></pre>
+  <div style="text-align: center">
+  <p><a href="https://github.com/jacoduplessis/calendar/blob/master/demo/editor.html">source code</a></p>
+  </div>
   <link rel="stylesheet" href="../dist/calendar.css">
   <link rel="stylesheet" href="../dist/editor.css">
   <script src="../dist/editor.js"></script>
   <script src="../dist/calendar.js"></script>
+
 
   <script>
     var calendar = new Calendar({
@@ -32,6 +36,8 @@
       data: {
         showNew: true,
         escape: false,
+        year: 2017,
+        month: 9,
       }
     })
     calendar.set({ message: 'loading...' })

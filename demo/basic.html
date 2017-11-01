@@ -7,8 +7,11 @@
   <title>Calendar</title>
 </head>
 <body>
-  <div id="calendar" style="max-width: 800px;margin: 0 auto;"></div>
+  <div id="calendar" style="max-width: 800px;margin: 2rem auto;padding: 0 5px"></div>
   <pre id="debug"></pre>
+  <div style="text-align: center">
+  <p><a href="https://github.com/jacoduplessis/calendar/blob/master/demo/basic.html">source code</a></p>
+  </div>
   <link rel="stylesheet" href="../dist/calendar.css">
   <script src="../dist/calendar.js"></script>
   <script>
@@ -17,6 +20,8 @@
       data: {
         escape: false,
         view: 'calendar',
+        year: 2017,
+        month: 9,
       }
     })
     calendar.set({message: 'loading...'})

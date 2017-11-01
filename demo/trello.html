@@ -5,8 +5,13 @@
   <title>Title</title>
 </head>
 <body>
-  <div id="calendar" style="max-width: 800px;margin: 0 auto;"></div>
+
+  <div id="calendar" style="max-width: 800px;margin: 2rem auto;padding: 0 5px"></div>
+
   <pre id="debug"></pre>
+  <div style="text-align: center">
+  <p><a href="https://trello.com/b/H3liKjAC/events">trello board</a> | <a href="https://github.com/jacoduplessis/calendar/blob/master/demo/trello.html">source code</a></p>
+  </div>
   <link rel="stylesheet" href="../dist/calendar.css">
   <script src="../dist/calendar.js"></script>
 
@@ -23,7 +28,6 @@
     calendar.set({message: 'loading...'})
     fetch("https://trello.com/b/H3liKjAC.json?cards=visible&card_attachments=cover").then(r => r.json()).then(data => {
       var entries = calendar.get('entries')
-      console.log(data.cards)
       var cardEntries = data.cards.filter(c => !!c.badges.due && !c.closed).map(c => {
 
         return {
@@ -33,7 +37,7 @@
           image: c.attachments.length > 0 ? c.attachments[0].previews.sort((a,b) => b.bytes - a.bytes)[0].url : null
         }
       })
-      console.log(cardEntries)
+
       entries = entries.concat(cardEntries)
       calendar.set({entries: entries, message: ''})
     })
