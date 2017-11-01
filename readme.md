@@ -19,6 +19,8 @@ as `entries` (singular: `entry`) in the code base and API.
 
 [Editor Plugin](https://jacoduplessis.github.io/calendar/demo/editor.html)
 
+[Display Public Trello Board](https://jacoduplessis.github.io/calendar/demo/editor.html)
+
 ## Usage
 
 ```html

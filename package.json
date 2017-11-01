@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "while inotifywait -e close_write src ; do NODE_ENV=development node build.js; done",
+    "build:dev": "NODE_ENV=development node build.js",
     "build": "NODE_ENV=production node build.js",
     "measure": "gzip -c ./dist/calendar.js | wc -c"
   },

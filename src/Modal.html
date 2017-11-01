@@ -4,7 +4,7 @@
   <div class="modal-container">
     <div class="modal-header" style="background-color: {{ color }};">
       <span class="modal-title" style="color: {{ contrastColor(color) }}">{{ title }}</span>
-      <button class="modal-close" aria-label="close" style="color: {{ contrastColor(color) }}" on:click="set({show: false})">+</button>
+      <button class="modal-close" aria-label="close" style="color: {{ contrastColor(color) }}" on:click="set({show: false})">&times;</button>
     </div>
     <div class="modal-body">
       <slot></slot>
@@ -55,6 +55,7 @@
     overflow: hidden;
     position: fixed;
     z-index: 20;
+    transition: opacity 0.3s ease-out;
   }
 
   .modal.active {
@@ -78,8 +79,10 @@
     overflow: auto;
     position: relative;
     width: 100%;
+    display: -ms-flexbox;
     display: flex;
     flex-direction: column;
+    -ms-flex-direction: column;
     background-color: white;
     border-radius: 3px;
   }
@@ -117,22 +120,11 @@
   }
 
   .modal-close {
-    outline: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
+    outline: 0;
     border-radius: 290486px;
     background: none;
     width: 30px;
     height: 30px;
-    -webkit-transform: rotate(45deg);
-    transform: rotate(45deg);
-    -webkit-transform-origin: center center;
-    transform-origin: center center;
     border: none;
     font-size: 20px;
     font-weight: 600;
