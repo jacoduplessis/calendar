@@ -90,7 +90,7 @@
       <img src="{{activeEntry.image}}" alt="{{activeEntry.title}}">
     {{/if}}
     {{#if escape }}{{ activeEntry.content }}{{else}}
-      <div>{{{ activeEntry.content }}}</div>
+      <div style="white-space: pre">{{{ activeEntry.content }}}</div>
     {{/if}}
   {{/if}}
   {{#if modalButtons.length> 1}}
