@@ -5,8 +5,6 @@ The 7Kb JavaScript calendar.
 You worked so hard to keep your app small. And then came the manager's request to add a calendar.
 Shit. Now you need Moment and jQuery and all your self-discipline means nothing. Until now.
 
-**This is under active development and the API is still a work in progress.**
-
 The purpose of this library is to render 'events'. It offers a `calendar` view as well
 as a `list` view.
 
