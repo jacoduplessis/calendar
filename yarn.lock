@@ -239,8 +239,8 @@ micromatch@^2.3.11:
     regex-cache "^0.4.2"
 
 minimist@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.0.tgz#a35008b20f41383eec1fb914f4cd5df79a264284"
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
 
 normalize-path@^2.0.1:
   version "2.1.1"
@@ -357,10 +357,6 @@ strip-ansi@^3.0.0:
 supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
-
-svelte-extras@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/svelte-extras/-/svelte-extras-1.5.3.tgz#30183f0c8ec3fb99bd82ed97f40ceb329185a8cd"
 
 svelte@^1.25.1:
   version "1.41.0"
