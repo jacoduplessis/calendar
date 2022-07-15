@@ -358,17 +358,13 @@ supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
 
-svelte-extras@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/svelte-extras/-/svelte-extras-1.5.3.tgz#30183f0c8ec3fb99bd82ed97f40ceb329185a8cd"
-
 svelte@^1.25.1:
   version "1.41.0"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.41.0.tgz#b47cbab5a126b8523f363ed2a558766d29adda1b"
 
-svelte@^1.40.2:
-  version "1.40.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-1.40.2.tgz#e04028d5eeaaf9ebf876367b8c6e889873d96668"
+svelte@^3.49.0:
+  version "3.49.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.49.0.tgz#5baee3c672306de1070c3b7888fc2204e36a4029"
 
 uglify-js@^3.0.9:
   version "3.1.4"
